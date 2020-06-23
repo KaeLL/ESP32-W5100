@@ -72,7 +72,7 @@ static void got_ip_event_handler(void *arg, esp_event_base_t event_base,
 
 void tasklol(void *p)
 {
-	ESP_ERROR_CHECK( spi_bus_initialize( SPI3_HOST, &( spi_bus_config_t ) { .miso_io_num = GPIO_NUM_19, .mosi_io_num = GPIO_NUM_23, .sclk_io_num = GPIO_NUM_18, .max_transfer_sz = 32768, .quadwp_io_num = -1, .quadhd_io_num = -1, .intr_flags = ESP_INTR_FLAG_IRAM }, 1 ) );
+	ESP_ERROR_CHECK( spi_bus_initialize( SPI3_HOST, &( spi_bus_config_t ) { .miso_io_num = GPIO_NUM_19, .mosi_io_num = GPIO_NUM_23, .sclk_io_num = GPIO_NUM_18, .max_transfer_sz = 32768, .quadwp_io_num = -1, .quadhd_io_num = -1/* , .intr_flags = ESP_INTR_FLAG_IRAM */ }, 1 ) );
 
 	// ESP_ERROR_CHECK(gpio_install_isr_service(0));
     // Initialize TCP/IP network interface (should be called only once in application)

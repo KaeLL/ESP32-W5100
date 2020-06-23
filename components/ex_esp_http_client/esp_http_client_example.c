@@ -21,13 +21,6 @@
 
 #include "esp_http_client.h"
 
-#include "esp_http_client_example.h"
-
-#define LOG_FUN(X) ESP_LOGW(TAG, X " %s:%d", __func__, __LINE__)
-
-#define START LOG_FUN("start")
-#define END LOG_FUN("end");
-
 #define MAX_HTTP_RECV_BUFFER 512
 #define MAX_HTTP_OUTPUT_BUFFER 2048
 static const char *TAG = "HTTP_CLIENT";
@@ -68,24 +61,23 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
              *  Check for chunked encoding is added as the URL for chunked encoding used in this example returns binary data.
              *  However, event handler can also be used in case chunked encoding is used.
              */
-			// ESP_LOG_BUFFER_HEXDUMP("", evt->data, evt->data_len, ESP_LOG_INFO);
-            // if (!esp_http_client_is_chunked_response(evt->client)) {
-            //     // If user_data buffer is configured, copy the response into the buffer
-            //     if (evt->user_data) {
-            //         memcpy(evt->user_data + output_len, evt->data, evt->data_len);
-            //     } else {
-            //         if (output_buffer == NULL) {
-            //             output_buffer = (char *) malloc(esp_http_client_get_content_length(evt->client));
-            //             output_len = 0;
-            //             if (output_buffer == NULL) {
-            //                 ESP_LOGE(TAG, "Failed to allocate memory for output buffer");
-            //                 return ESP_FAIL;
-            //             }
-            //         }
-            //         memcpy(output_buffer + output_len, evt->data, evt->data_len);
-            //     }
-            //     output_len += evt->data_len;
-            // }
+            if (!esp_http_client_is_chunked_response(evt->client)) {
+                // If user_data buffer is configured, copy the response into the buffer
+                if (evt->user_data) {
+                    memcpy(evt->user_data + output_len, evt->data, evt->data_len);
+                } else {
+                    if (output_buffer == NULL) {
+                        output_buffer = (char *) malloc(esp_http_client_get_content_length(evt->client));
+                        output_len = 0;
+                        if (output_buffer == NULL) {
+                            ESP_LOGE(TAG, "Failed to allocate memory for output buffer");
+                            return ESP_FAIL;
+                        }
+                    }
+                    memcpy(output_buffer + output_len, evt->data, evt->data_len);
+                }
+                output_len += evt->data_len;
+            }
 
             break;
         case HTTP_EVENT_ON_FINISH:
@@ -118,10 +110,18 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 
 static void http_rest_with_url(void)
 {
-	START;
     char local_response_buffer[MAX_HTTP_OUTPUT_BUFFER] = {0};
+    /**
+     * NOTE: All the configuration parameters for http_client must be spefied either in URL or as host and path parameters.
+     * If host and path parameters are not set, query parameter will be ignored. In such cases,
+     * query parameter should be specified in URL.
+     *
+     * If URL as well as host and path parameters are specified, values of host and path will be considered.
+     */
     esp_http_client_config_t config = {
-        .url = "http://httpbin.org/get",
+        .host = "httpbin.org",
+        .path = "/get",
+        .query = "esp",
         .event_handler = _http_event_handler,
         .user_data = local_response_buffer,        // Pass address of local buffer to get response
     };
@@ -136,7 +136,7 @@ static void http_rest_with_url(void)
     } else {
         ESP_LOGE(TAG, "HTTP GET request failed: %s", esp_err_to_name(err));
     }
-    // ESP_LOG_BUFFER_HEX(TAG, local_response_buffer, strlen(local_response_buffer));
+    ESP_LOG_BUFFER_HEX(TAG, local_response_buffer, strlen(local_response_buffer));
 
     // POST
     const char *post_data = "{\"field1\":\"value1\"}";
@@ -203,12 +203,10 @@ static void http_rest_with_url(void)
     }
 
     esp_http_client_cleanup(client);
-	END;
 }
 
 static void http_rest_with_hostname_path(void)
 {
-	START;
     esp_http_client_config_t config = {
         .host = "httpbin.org",
         .path = "/get",
@@ -291,13 +289,11 @@ static void http_rest_with_hostname_path(void)
     }
 
     esp_http_client_cleanup(client);
-	END;
 }
 
 #if CONFIG_ESP_HTTP_CLIENT_ENABLE_BASIC_AUTH
 static void http_auth_basic(void)
 {
-	START;
     esp_http_client_config_t config = {
         .url = "http://user:passwd@httpbin.org/basic-auth/user/passwd",
         .event_handler = _http_event_handler,
@@ -314,12 +310,10 @@ static void http_auth_basic(void)
         ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
     }
     esp_http_client_cleanup(client);
-	END;
 }
 
 static void http_auth_basic_redirect(void)
 {
-	START;
     esp_http_client_config_t config = {
         .url = "http://user:passwd@httpbin.org/basic-auth/user/passwd",
         .event_handler = _http_event_handler,
@@ -335,13 +329,11 @@ static void http_auth_basic_redirect(void)
         ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
     }
     esp_http_client_cleanup(client);
-	END;
 }
 #endif
 
 static void http_auth_digest(void)
 {
-	START;
     esp_http_client_config_t config = {
         .url = "http://user:passwd@httpbin.org/digest-auth/auth/user/passwd/MD5/never",
         .event_handler = _http_event_handler,
@@ -357,12 +349,10 @@ static void http_auth_digest(void)
         ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
     }
     esp_http_client_cleanup(client);
-	END;
 }
 
 static void https_with_url(void)
 {
-	START;
     esp_http_client_config_t config = {
         .url = "https://www.howsmyssl.com",
         .event_handler = _http_event_handler,
@@ -379,12 +369,10 @@ static void https_with_url(void)
         ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
     }
     esp_http_client_cleanup(client);
-	END;
 }
 
 static void https_with_hostname_path(void)
 {
-	START;
     esp_http_client_config_t config = {
         .host = "www.howsmyssl.com",
         .path = "/",
@@ -403,12 +391,10 @@ static void https_with_hostname_path(void)
         ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
     }
     esp_http_client_cleanup(client);
-	END;
 }
 
 static void http_relative_redirect(void)
 {
-	START;
     esp_http_client_config_t config = {
         .url = "http://httpbin.org/relative-redirect/3",
         .event_handler = _http_event_handler,
@@ -424,12 +410,10 @@ static void http_relative_redirect(void)
         ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
     }
     esp_http_client_cleanup(client);
-	END;
 }
 
 static void http_absolute_redirect(void)
 {
-	START;
     esp_http_client_config_t config = {
         .url = "http://httpbin.org/absolute-redirect/3",
         .event_handler = _http_event_handler,
@@ -445,12 +429,10 @@ static void http_absolute_redirect(void)
         ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
     }
     esp_http_client_cleanup(client);
-	END;
 }
 
 static void http_redirect_to_https(void)
 {
-	START;
     esp_http_client_config_t config = {
         .url = "http://httpbin.org/redirect-to?url=https%3A%2F%2Fwww.howsmyssl.com",
         .event_handler = _http_event_handler,
@@ -466,13 +448,11 @@ static void http_redirect_to_https(void)
         ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
     }
     esp_http_client_cleanup(client);
-	END;
 }
 
 
 static void http_download_chunk(void)
 {
-	START;
     esp_http_client_config_t config = {
         .url = "http://httpbin.org/stream-bytes/8912",
         .event_handler = _http_event_handler,
@@ -488,12 +468,10 @@ static void http_download_chunk(void)
         ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
     }
     esp_http_client_cleanup(client);
-	END;
 }
 
 static void http_perform_as_stream_reader(void)
 {
-	START;
     char *buffer = malloc(MAX_HTTP_RECV_BUFFER + 1);
     if (buffer == NULL) {
         ESP_LOGE(TAG, "Cannot malloc http receive buffer");
@@ -525,12 +503,10 @@ static void http_perform_as_stream_reader(void)
     esp_http_client_close(client);
     esp_http_client_cleanup(client);
     free(buffer);
-	END;
 }
 
 static void https_async(void)
 {
-	START;
     esp_http_client_config_t config = {
         .url = "https://postman-echo.com/post",
         .event_handler = _http_event_handler,
@@ -559,12 +535,10 @@ static void https_async(void)
         ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
     }
     esp_http_client_cleanup(client);
-	END;
 }
 
 static void https_with_invalid_url(void)
 {
-	START;
     esp_http_client_config_t config = {
             .url = "https://not.existent.url",
             .event_handler = _http_event_handler,
@@ -580,7 +554,6 @@ static void https_with_invalid_url(void)
         ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
     }
     esp_http_client_cleanup(client);
-	END;
 }
 
 /*
@@ -591,7 +564,6 @@ static void https_with_invalid_url(void)
  */
 static void http_native_request(void)
 {
-	START;
     char output_buffer[MAX_HTTP_OUTPUT_BUFFER] = {0};   // Buffer to store response of http request
     int content_length = 0;
     esp_http_client_config_t config = {
@@ -614,7 +586,7 @@ static void http_native_request(void)
                 ESP_LOGI(TAG, "HTTP GET Status = %d, content_length = %d",
                 esp_http_client_get_status_code(client),
                 esp_http_client_get_content_length(client));
-                // ESP_LOG_BUFFER_HEX(TAG, output_buffer, strlen(output_buffer));
+                ESP_LOG_BUFFER_HEX(TAG, output_buffer, strlen(output_buffer));
             } else {
                 ESP_LOGE(TAG, "Failed to read response");
             }
@@ -640,13 +612,12 @@ static void http_native_request(void)
             ESP_LOGI(TAG, "HTTP GET Status = %d, content_length = %d",
             esp_http_client_get_status_code(client),
             esp_http_client_get_content_length(client));
-            // ESP_LOG_BUFFER_HEX(TAG, output_buffer, strlen(output_buffer));
+            ESP_LOG_BUFFER_HEX(TAG, output_buffer, strlen(output_buffer));
         } else {
             ESP_LOGE(TAG, "Failed to read response");
         }
     }
     esp_http_client_cleanup(client);
-	END;
 }
 
 static void http_test_task(void *pvParameters)
@@ -684,10 +655,10 @@ void http_client_test(void)
     // ESP_ERROR_CHECK(esp_netif_init());
     // ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-    // /* This helper function configures Wi-Fi or Ethernet, as selected in menuconfig.
-    //  * Read "Establishing Wi-Fi or Ethernet Connection" section in
-    //  * examples/protocols/README.md for more information about this function.
-    //  */
+    /* This helper function configures Wi-Fi or Ethernet, as selected in menuconfig.
+     * Read "Establishing Wi-Fi or Ethernet Connection" section in
+     * examples/protocols/README.md for more information about this function.
+     */
     // ESP_ERROR_CHECK(example_connect());
     // ESP_LOGI(TAG, "Connected to AP, begin http example");
 
