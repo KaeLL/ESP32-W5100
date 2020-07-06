@@ -25,18 +25,18 @@ static const char *TAG = "main";
 EventGroupHandle_t eth_ev;
 
 #if CONFIG_W5100_USE_CUSTOM_TRANS_FUNCTION
-#include "freertos/semphr.h"
+#	include "freertos/semphr.h"
 
-#include "w5100_spi.h"
+#	include "w5100_spi.h"
 
 SemaphoreHandle_t spi_mutex;
 
-void spi_trans(spi_device_handle_t spi, uint32_t tx, uint32_t *rx)
+void spi_trans( spi_device_handle_t spi, uint32_t tx, uint32_t *rx )
 {
-	xSemaphoreTake(spi_mutex, portMAX_DELAY);
-	ESP_ERROR_CHECK( spi_device_transmit( spi,
-		&( spi_transaction_t ){ .length = 32, .tx_buffer = &tx, .rx_buffer = rx } ) );
-	xSemaphoreGive(spi_mutex);
+	xSemaphoreTake( spi_mutex, portMAX_DELAY );
+	ESP_ERROR_CHECK(
+		spi_device_transmit( spi, &( spi_transaction_t ){ .length = 32, .tx_buffer = &tx, .rx_buffer = rx } ) );
+	xSemaphoreGive( spi_mutex );
 }
 #endif
 
@@ -114,9 +114,9 @@ void tasklol( void *p )
 	ESP_ERROR_CHECK( esp_event_handler_register( IP_EVENT, IP_EVENT_ETH_GOT_IP, &got_ip_event_handler, NULL ) );
 
 #if CONFIG_W5100_USE_CUSTOM_TRANS_FUNCTION
-	ESP_ERROR_CHECK(!(spi_mutex = xSemaphoreCreateMutex()));
+	ESP_ERROR_CHECK( !( spi_mutex = xSemaphoreCreateMutex() ) );
 
-	set_spi_trans_cb(spi_trans);
+	set_spi_trans_cb( spi_trans );
 #endif
 	// Uncomment the initializer list below to enable static IPv4
 	eth_main( &( struct eth_ifconfig ){
