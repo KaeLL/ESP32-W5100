@@ -32,6 +32,8 @@ extern const uint8_t mqtt_eclipse_org_pem_start[] asm( "_binary_mqtt_eclipse_org
 #endif
 extern const uint8_t mqtt_eclipse_org_pem_end[] asm( "_binary_mqtt_eclipse_org_pem_end" );
 
+esp_mqtt_client_handle_t client;
+
 //
 // Note: this function is for testing purposes only publishing the entire active partition
 //       (to be checked against the original binary)
@@ -128,9 +130,18 @@ static void mqtt_app_start( void )
 	};
 
 	ESP_LOGI( TAG, "[APP] Free memory: %d bytes", esp_get_free_heap_size() );
-	esp_mqtt_client_handle_t client = esp_mqtt_client_init( &mqtt_cfg );
+	client = esp_mqtt_client_init( &mqtt_cfg );
 	esp_mqtt_client_register_event( client, ESP_EVENT_ANY_ID, mqtt_event_handler, client );
 	esp_mqtt_client_start( client );
+}
+
+void mqtt_lmao(void *p)
+{
+	TickType_t lol = 0;
+	vTaskDelayUntil(&lol, pdMS_TO_TICKS(35000));
+	ESP_ERROR_CHECK(esp_mqtt_client_destroy(client));
+	ESP_LOGW(TAG, "MQTT STOPPED");
+	vTaskDelete(NULL);
 }
 
 void mqtt_example( void )
@@ -148,15 +159,7 @@ void mqtt_example( void )
 	esp_log_level_set( "TRANSPORT", ESP_LOG_VERBOSE );
 	esp_log_level_set( "OUTBOX", ESP_LOG_VERBOSE );
 
-	// ESP_ERROR_CHECK(nvs_flash_init());
-	// ESP_ERROR_CHECK(esp_netif_init());
-	// ESP_ERROR_CHECK(esp_event_loop_create_default());
-
-	/* This helper function configures Wi-Fi or Ethernet, as selected in menuconfig.
-	 * Read "Establishing Wi-Fi or Ethernet Connection" section in
-	 * examples/protocols/README.md for more information about this function.
-	 */
-	// ESP_ERROR_CHECK(example_connect());
-
 	mqtt_app_start();
+
+	xTaskCreate(mqtt_lmao, "mqtt_lmao", 2000, NULL, 14, NULL);
 }
