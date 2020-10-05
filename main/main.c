@@ -144,16 +144,15 @@ void tasklol( void *p )
 	http_client_test();
 	// mqtt_example();
 
-	TickType_t lmao = 0;
-	vTaskDelayUntil(&lmao, pdMS_TO_TICKS(40000));
 	ESP_LOGW(TAG, "deinit start");
 	tasklol_deinit();
 	ESP_LOGW(TAG, "deinit end");
 
+	// ESP_LOGW(TAG, "Water mark: %u", uxTaskGetStackHighWaterMark(NULL));
 	vTaskDelete( NULL );
 }
 
 void app_main( void )
 {
-	xTaskCreate( tasklol, "tasklol", 3072, NULL, 1, NULL );
+	xTaskCreate( tasklol, "tasklol", 4096, NULL, 1, NULL );
 }
