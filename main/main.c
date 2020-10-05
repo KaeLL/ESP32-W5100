@@ -142,7 +142,7 @@ void tasklol( void *p )
 	xEventGroupWaitBits( eth_ev, GOT_IPV4, pdFALSE, pdTRUE, portMAX_DELAY );
 
 	http_client_test();
-	mqtt_example();
+	// mqtt_example();
 
 	TickType_t lmao = 0;
 	vTaskDelayUntil(&lmao, pdMS_TO_TICKS(40000));

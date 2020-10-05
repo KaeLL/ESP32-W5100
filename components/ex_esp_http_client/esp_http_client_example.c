@@ -618,7 +618,7 @@ static void http_test_task( void *pvParameters )
 	http_rest_with_hostname_path();
 	http_auth_basic();
 	http_auth_basic_redirect();
-	http_auth_digest();
+	// http_auth_digest();
 	http_relative_redirect();
 	http_absolute_redirect();
 	https_with_url();
