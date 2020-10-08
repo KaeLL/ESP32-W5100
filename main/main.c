@@ -91,14 +91,6 @@ static void got_ip_event_handler( void *arg, esp_event_base_t event_base, int32_
 	xEventGroupSetBits( eth_ev, GOT_IPV4 );
 }
 
-void tasklol_deinit(void)
-{
-	eth_deinit();
-	ESP_ERROR_CHECK(esp_event_handler_unregister(IP_EVENT, IP_EVENT_ETH_GOT_IP, got_ip_event_handler));
-	ESP_ERROR_CHECK(esp_event_handler_unregister(ETH_EVENT, ESP_EVENT_ANY_ID, eth_event_handler));
-	// ESP_ERROR_CHECK(esp_netif_deinit()); // Not supported
-}
-
 void tasklol( void *p )
 {
 	ESP_ERROR_CHECK( spi_bus_initialize( SPI3_HOST,
@@ -142,17 +134,12 @@ void tasklol( void *p )
 	xEventGroupWaitBits( eth_ev, GOT_IPV4, pdFALSE, pdTRUE, portMAX_DELAY );
 
 	http_client_test();
-	// mqtt_example();
+	mqtt_example();
 
-	ESP_LOGW(TAG, "deinit start");
-	tasklol_deinit();
-	ESP_LOGW(TAG, "deinit end");
-
-	// ESP_LOGW(TAG, "Water mark: %u", uxTaskGetStackHighWaterMark(NULL));
 	vTaskDelete( NULL );
 }
 
 void app_main( void )
 {
-	xTaskCreate( tasklol, "tasklol", 4096, NULL, 1, NULL );
+	xTaskCreate( tasklol, "tasklol", 8192, NULL, 1, NULL );
 }

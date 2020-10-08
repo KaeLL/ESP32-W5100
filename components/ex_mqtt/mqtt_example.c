@@ -135,15 +135,6 @@ static void mqtt_app_start( void )
 	esp_mqtt_client_start( client );
 }
 
-void mqtt_lmao(void *p)
-{
-	TickType_t lol = 0;
-	vTaskDelayUntil(&lol, pdMS_TO_TICKS(35000));
-	ESP_ERROR_CHECK(esp_mqtt_client_destroy(client));
-	ESP_LOGW(TAG, "MQTT STOPPED");
-	vTaskDelete(NULL);
-}
-
 void mqtt_example( void )
 {
 	ESP_LOGI( TAG, "[APP] Startup.." );
@@ -160,6 +151,4 @@ void mqtt_example( void )
 	esp_log_level_set( "OUTBOX", ESP_LOG_VERBOSE );
 
 	mqtt_app_start();
-
-	xTaskCreate(mqtt_lmao, "mqtt_lmao", 2000, NULL, 14, NULL);
 }
