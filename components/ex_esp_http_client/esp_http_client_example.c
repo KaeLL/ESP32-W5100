@@ -618,7 +618,7 @@ static void http_test_task( void *pvParameters )
 	http_rest_with_hostname_path();
 	http_auth_basic();
 	http_auth_basic_redirect();
-	http_auth_digest();
+	// http_auth_digest();
 	http_relative_redirect();
 	http_absolute_redirect();
 	https_with_url();
@@ -630,27 +630,12 @@ static void http_test_task( void *pvParameters )
 	https_with_invalid_url();
 
 	ESP_LOGI( TAG, "Finish http example" );
+	// esp_log_level_set("*", ESP_LOG_NONE);
 	vTaskDelete( NULL );
 }
 
 void http_client_test( void )
 {
-	// esp_err_t ret = nvs_flash_init();
-	// if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-	//   ESP_ERROR_CHECK(nvs_flash_erase());
-	//   ret = nvs_flash_init();
-	// }
-	// ESP_ERROR_CHECK(ret);
-	// ESP_ERROR_CHECK(esp_netif_init());
-	// ESP_ERROR_CHECK(esp_event_loop_create_default());
-
-	// /* This helper function configures Wi-Fi or Ethernet, as selected in menuconfig.
-	//  * Read "Establishing Wi-Fi or Ethernet Connection" section in
-	//  * examples/protocols/README.md for more information about this function.
-	//  */
-	// ESP_ERROR_CHECK(example_connect());
-	// ESP_LOGI(TAG, "Connected to AP, begin http example");
-
 	xTaskCreate( &http_test_task, "http_test_task", 8192, NULL, 5, NULL );
 	// http_test_task( NULL );
 }
