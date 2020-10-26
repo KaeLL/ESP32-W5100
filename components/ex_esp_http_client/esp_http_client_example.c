@@ -679,81 +679,81 @@ static void https_with_invalid_url( void )
  *  Note: This approach should only be used in case use of low level APIs is required.
  *  The easiest way is to use esp_http_perform()
  */
-static void http_native_request( void )
-{
-	char output_buffer[ MAX_HTTP_OUTPUT_BUFFER ] = { 0 }; // Buffer to store response of http request
-	int content_length = 0;
-	esp_http_client_config_t config = {
-		.url = "http://httpbin.org/get",
-	};
-	esp_http_client_handle_t client = esp_http_client_init( &config );
+// static void http_native_request( void )
+// {
+// 	char output_buffer[ MAX_HTTP_OUTPUT_BUFFER ] = { 0 }; // Buffer to store response of http request
+// 	int content_length = 0;
+// 	esp_http_client_config_t config = {
+// 		.url = "http://httpbin.org/get",
+// 	};
+// 	esp_http_client_handle_t client = esp_http_client_init( &config );
 
-	// GET Request
-	esp_http_client_set_method( client, HTTP_METHOD_GET );
-	esp_err_t err = esp_http_client_open( client, 0 );
-	if ( err != ESP_OK )
-	{
-		ESP_LOGE( TAG, "Failed to open HTTP connection: %s", esp_err_to_name( err ) );
-	}
-	else
-	{
-		content_length = esp_http_client_fetch_headers( client );
-		if ( content_length < 0 )
-		{
-			ESP_LOGE( TAG, "HTTP client fetch headers failed" );
-		}
-		else
-		{
-			int data_read = esp_http_client_read_response( client, output_buffer, MAX_HTTP_OUTPUT_BUFFER );
-			if ( data_read >= 0 )
-			{
-				ESP_LOGI( TAG,
-					"HTTP GET Status = %d, content_length = %d",
-					esp_http_client_get_status_code( client ),
-					esp_http_client_get_content_length( client ) );
-				ESP_LOG_BUFFER_HEX( TAG, output_buffer, strlen( output_buffer ) );
-			}
-			else
-			{
-				ESP_LOGE( TAG, "Failed to read response" );
-			}
-		}
-	}
-	esp_http_client_close( client );
+// 	// GET Request
+// 	esp_http_client_set_method( client, HTTP_METHOD_GET );
+// 	esp_err_t err = esp_http_client_open( client, 0 );
+// 	if ( err != ESP_OK )
+// 	{
+// 		ESP_LOGE( TAG, "Failed to open HTTP connection: %s", esp_err_to_name( err ) );
+// 	}
+// 	else
+// 	{
+// 		content_length = esp_http_client_fetch_headers( client );
+// 		if ( content_length < 0 )
+// 		{
+// 			ESP_LOGE( TAG, "HTTP client fetch headers failed" );
+// 		}
+// 		else
+// 		{
+// 			int data_read = esp_http_client_read_response( client, output_buffer, MAX_HTTP_OUTPUT_BUFFER );
+// 			if ( data_read >= 0 )
+// 			{
+// 				ESP_LOGI( TAG,
+// 					"HTTP GET Status = %d, content_length = %d",
+// 					esp_http_client_get_status_code( client ),
+// 					esp_http_client_get_content_length( client ) );
+// 				ESP_LOG_BUFFER_HEX( TAG, output_buffer, strlen( output_buffer ) );
+// 			}
+// 			else
+// 			{
+// 				ESP_LOGE( TAG, "Failed to read response" );
+// 			}
+// 		}
+// 	}
+// 	esp_http_client_close( client );
 
-	// POST Request
-	const char *post_data = "{\"field1\":\"value1\"}";
-	esp_http_client_set_url( client, "http://httpbin.org/post" );
-	esp_http_client_set_method( client, HTTP_METHOD_POST );
-	esp_http_client_set_header( client, "Content-Type", "application/json" );
-	err = esp_http_client_open( client, strlen( post_data ) );
-	if ( err != ESP_OK )
-	{
-		ESP_LOGE( TAG, "Failed to open HTTP connection: %s", esp_err_to_name( err ) );
-	}
-	else
-	{
-		int wlen = esp_http_client_write( client, post_data, strlen( post_data ) );
-		if ( wlen < 0 )
-		{
-			ESP_LOGE( TAG, "Write failed" );
-		}
-		int data_read = esp_http_client_read_response( client, output_buffer, MAX_HTTP_OUTPUT_BUFFER );
-		if ( data_read >= 0 )
-		{
-			ESP_LOGI( TAG,
-				"HTTP GET Status = %d, content_length = %d",
-				esp_http_client_get_status_code( client ),
-				esp_http_client_get_content_length( client ) );
-			ESP_LOG_BUFFER_HEX( TAG, output_buffer, strlen( output_buffer ) );
-		}
-		else
-		{
-			ESP_LOGE( TAG, "Failed to read response" );
-		}
-	}
-	esp_http_client_cleanup( client );
-}
+// 	// POST Request
+// 	const char *post_data = "{\"field1\":\"value1\"}";
+// 	esp_http_client_set_url( client, "http://httpbin.org/post" );
+// 	esp_http_client_set_method( client, HTTP_METHOD_POST );
+// 	esp_http_client_set_header( client, "Content-Type", "application/json" );
+// 	err = esp_http_client_open( client, strlen( post_data ) );
+// 	if ( err != ESP_OK )
+// 	{
+// 		ESP_LOGE( TAG, "Failed to open HTTP connection: %s", esp_err_to_name( err ) );
+// 	}
+// 	else
+// 	{
+// 		int wlen = esp_http_client_write( client, post_data, strlen( post_data ) );
+// 		if ( wlen < 0 )
+// 		{
+// 			ESP_LOGE( TAG, "Write failed" );
+// 		}
+// 		int data_read = esp_http_client_read_response( client, output_buffer, MAX_HTTP_OUTPUT_BUFFER );
+// 		if ( data_read >= 0 )
+// 		{
+// 			ESP_LOGI( TAG,
+// 				"HTTP GET Status = %d, content_length = %d",
+// 				esp_http_client_get_status_code( client ),
+// 				esp_http_client_get_content_length( client ) );
+// 			ESP_LOG_BUFFER_HEX( TAG, output_buffer, strlen( output_buffer ) );
+// 		}
+// 		else
+// 		{
+// 			ESP_LOGE( TAG, "Failed to read response" );
+// 		}
+// 	}
+// 	esp_http_client_cleanup( client );
+// }
 
 static void http_test_task( void *pvParameters )
 {
