@@ -32,8 +32,6 @@ extern const uint8_t mqtt_eclipse_org_pem_start[] asm( "_binary_mqtt_eclipse_org
 #endif
 extern const uint8_t mqtt_eclipse_org_pem_end[] asm( "_binary_mqtt_eclipse_org_pem_end" );
 
-esp_mqtt_client_handle_t client;
-
 //
 // Note: this function is for testing purposes only publishing the entire active partition
 //       (to be checked against the original binary)
@@ -130,7 +128,7 @@ static void mqtt_app_start( void )
 	};
 
 	ESP_LOGI( TAG, "[APP] Free memory: %d bytes", esp_get_free_heap_size() );
-	client = esp_mqtt_client_init( &mqtt_cfg );
+	esp_mqtt_client_handle_t client = esp_mqtt_client_init( &mqtt_cfg );
 	esp_mqtt_client_register_event( client, ESP_EVENT_ANY_ID, mqtt_event_handler, client );
 	esp_mqtt_client_start( client );
 }
