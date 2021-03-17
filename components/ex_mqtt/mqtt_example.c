@@ -25,12 +25,12 @@
 static const char *TAG = "MQTTS_EXAMPLE";
 
 #if CONFIG_BROKER_CERTIFICATE_OVERRIDDEN == 1
-static const uint8_t mqtt_eclipse_org_pem_start[]
+static const uint8_t howsmyssl_com_root_cert_pem_start[]
 	= "-----BEGIN CERTIFICATE-----\n" CONFIG_BROKER_CERTIFICATE_OVERRIDE "\n-----END CERTIFICATE-----";
 #else
-extern const uint8_t mqtt_eclipse_org_pem_start[] asm( "_binary_mqtt_eclipse_org_pem_start" );
+extern const char howsmyssl_com_root_cert_pem_start[] asm( "_binary_howsmyssl_com_root_cert_pem_start" );
 #endif
-extern const uint8_t mqtt_eclipse_org_pem_end[] asm( "_binary_mqtt_eclipse_org_pem_end" );
+extern const char howsmyssl_com_root_cert_pem_end[] asm( "_binary_howsmyssl_com_root_cert_pem_end" );
 
 //
 // Note: this function is for testing purposes only publishing the entire active partition
@@ -124,7 +124,7 @@ static void mqtt_app_start( void )
 {
 	const esp_mqtt_client_config_t mqtt_cfg = {
 		.uri = CONFIG_BROKER_URI,
-		.cert_pem = ( const char * )mqtt_eclipse_org_pem_start,
+		.cert_pem = ( const char * )howsmyssl_com_root_cert_pem_start,
 	};
 
 	ESP_LOGI( TAG, "[APP] Free memory: %d bytes", esp_get_free_heap_size() );

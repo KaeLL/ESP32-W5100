@@ -8,4 +8,5 @@ The code assumes my specific design, such as
 GPIOs, but the most important one is polling
 status instead of using interrupts.
 
-Base IDF rev.: v4.2-rc
+Base IDF rev.: release/v4.2
+ce2c615bb3b377bb0a5c95d8c9540d5050a8967b
