@@ -2,7 +2,7 @@ menu "MQTT Example Configuration"
 
     config BROKER_URI
         string "Broker URL"
-        default "mqtts://mqtt.eclipse.org:8883"
+        default "mqtts://mqtt.eclipseprojects.io:8883"
         help
             URL of an mqtt broker which this example connects to.
 
@@ -16,5 +16,11 @@ menu "MQTT Example Configuration"
     config BROKER_CERTIFICATE_OVERRIDDEN
         bool
         default y if BROKER_CERTIFICATE_OVERRIDE != ""
+
+    config BROKER_BIN_SIZE_TO_SEND
+        # This option is not visible and is used only to set parameters for example tests
+        # Here we configure the data size to send and to be expected in the python script
+        int
+        default 20000
 
 endmenu

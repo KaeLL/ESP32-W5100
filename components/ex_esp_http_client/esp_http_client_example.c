@@ -95,8 +95,8 @@ esp_err_t _http_event_handler( esp_http_client_event_t *evt )
 				// ESP_LOG_BUFFER_HEX(TAG, output_buffer, output_len);
 				free( output_buffer );
 				output_buffer = NULL;
-				output_len = 0;
 			}
+			output_len = 0;
 			break;
 		case HTTP_EVENT_DISCONNECTED:
 			ESP_LOGI( TAG, "HTTP_EVENT_DISCONNECTED" );
@@ -108,8 +108,8 @@ esp_err_t _http_event_handler( esp_http_client_event_t *evt )
 				{
 					free( output_buffer );
 					output_buffer = NULL;
-					output_len = 0;
 				}
+				output_len = 0;
 				ESP_LOGI( TAG, "Last esp error code: 0x%x", err );
 				ESP_LOGI( TAG, "Last mbedtls failure: 0x%x", mbedtls_err );
 			}
@@ -134,6 +134,7 @@ static void http_rest_with_url( void )
 		.query = "esp",
 		.event_handler = _http_event_handler,
 		.user_data = local_response_buffer, // Pass address of local buffer to get response
+		.disable_auto_redirect = true,
 	};
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 
@@ -352,10 +353,18 @@ static void http_rest_with_hostname_path( void )
 #if CONFIG_ESP_HTTP_CLIENT_ENABLE_BASIC_AUTH
 static void http_auth_basic( void )
 {
+	/**
+	 * Note: `max_authorization_retries` in esp_http_client_config_t
+	 * can be used to configure number of retry attempts to be performed
+	 * in case unauthorized status code is received.
+	 *
+	 * To disable authorization retries, set max_authorization_retries to -1.
+	 */
 	esp_http_client_config_t config = {
 		.url = "http://user:passwd@httpbin.org/basic-auth/user/passwd",
 		.event_handler = _http_event_handler,
 		.auth_type = HTTP_AUTH_TYPE_BASIC,
+		.max_authorization_retries = -1,
 	};
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 	esp_err_t err = esp_http_client_perform( client );
@@ -747,6 +756,62 @@ static void http_native_request( void )
 	esp_http_client_cleanup( client );
 }
 
+static void http_partial_download( void )
+{
+	esp_http_client_config_t config = {
+		.url = "http://jigsaw.w3.org/HTTP/TE/foo.txt",
+		.event_handler = _http_event_handler,
+	};
+	esp_http_client_handle_t client = esp_http_client_init( &config );
+
+	// Download a file excluding first 10 bytes
+	esp_http_client_set_header( client, "Range", "bytes=10-" );
+	esp_err_t err = esp_http_client_perform( client );
+	if ( err == ESP_OK )
+	{
+		ESP_LOGI( TAG,
+			"HTTP Status = %d, content_length = %d",
+			esp_http_client_get_status_code( client ),
+			esp_http_client_get_content_length( client ) );
+	}
+	else
+	{
+		ESP_LOGE( TAG, "HTTP request failed: %s", esp_err_to_name( err ) );
+	}
+
+	// Download last 10 bytes of a file
+	esp_http_client_set_header( client, "Range", "bytes=-10" );
+	err = esp_http_client_perform( client );
+	if ( err == ESP_OK )
+	{
+		ESP_LOGI( TAG,
+			"HTTP Status = %d, content_length = %d",
+			esp_http_client_get_status_code( client ),
+			esp_http_client_get_content_length( client ) );
+	}
+	else
+	{
+		ESP_LOGE( TAG, "HTTP request failed: %s", esp_err_to_name( err ) );
+	}
+
+	// Download 10 bytes from 11 to 20
+	esp_http_client_set_header( client, "Range", "bytes=11-20" );
+	err = esp_http_client_perform( client );
+	if ( err == ESP_OK )
+	{
+		ESP_LOGI( TAG,
+			"HTTP Status = %d, content_length = %d",
+			esp_http_client_get_status_code( client ),
+			esp_http_client_get_content_length( client ) );
+	}
+	else
+	{
+		ESP_LOGE( TAG, "HTTP request failed: %s", esp_err_to_name( err ) );
+	}
+
+	esp_http_client_cleanup( client );
+}
+
 static void http_test_task( void *pvParameters )
 {
 	http_rest_with_url();
@@ -766,6 +831,7 @@ static void http_test_task( void *pvParameters )
 	https_async();
 	https_with_invalid_url();
 	http_native_request();
+	http_partial_download();
 
 	ESP_LOGI( TAG, "Finish http example" );
 	vTaskDelete( NULL );

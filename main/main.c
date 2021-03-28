@@ -100,14 +100,19 @@ void tasklol( void *p )
 	// Uncomment the initializer list below to enable static IPv4
 	eth_main( &( struct eth_ifconfig ){
 		.hostname = "w5100_esp32",
+		// .sip = &(struct eth_static_ip)
 		// {
-		// 	.ip.u8 = { 192, 168, 0, 220 },
+		// 	.ip.u8 = { 192, 168, 251, 220 },
 		// 	.nm.u8 = { 255, 255, 255, 0 },
-		// 	.gw.u8 = { 192, 168, 0, 1 },
+		// 	.gw.u8 = { 192, 168, 251, 1 },
 		// 	.p_dns.u8 = { 1, 1, 1, 1 },
 		// 	.s_dns.u8 = { 8, 8, 8, 8 },
 		// 	.f_dns.u8 = { 8, 8, 4, 4 },
 		// },
+		// .w5100_cfg = &(const struct w5100_config_t)
+		// {
+		// 	.user_mutex = xSemaphoreCreateMutex()
+		// }
 	} );
 
 	xEventGroupWaitBits( eth_ev, GOT_IPV4, pdFALSE, pdTRUE, portMAX_DELAY );
