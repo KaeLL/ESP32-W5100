@@ -1,0 +1,7 @@
+menu "ESP32_W5100 configurations"
+    config TZ_ENV
+        string "TZ environment variable"
+        default "GMT"
+        help
+            Manually set the TZ env_var. Defaults to GMT.
+endmenu

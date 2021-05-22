@@ -18,6 +18,7 @@
 #include "esp_netif.h"
 // #include "protocol_examples_common.h"
 #include "esp_tls.h"
+#include "esp_crt_bundle.h"
 
 #include "esp_http_client.h"
 
@@ -37,6 +38,9 @@ static const char *TAG = "HTTP_CLIENT";
 */
 extern const char howsmyssl_com_root_cert_pem_start[] asm( "_binary_howsmyssl_com_root_cert_pem_start" );
 extern const char howsmyssl_com_root_cert_pem_end[] asm( "_binary_howsmyssl_com_root_cert_pem_end" );
+
+extern const char postman_root_cert_pem_start[] asm( "_binary_postman_root_cert_pem_start" );
+extern const char postman_root_cert_pem_end[] asm( "_binary_postman_root_cert_pem_end" );
 
 esp_err_t _http_event_handler( esp_http_client_event_t *evt )
 {
@@ -407,6 +411,7 @@ static void http_auth_basic_redirect( void )
 }
 #endif
 
+#if CONFIG_ESP_HTTP_CLIENT_ENABLE_DIGEST_AUTH
 static void http_auth_digest( void )
 {
 	esp_http_client_config_t config = {
@@ -429,13 +434,14 @@ static void http_auth_digest( void )
 	}
 	esp_http_client_cleanup( client );
 }
+#endif
 
 static void https_with_url( void )
 {
 	esp_http_client_config_t config = {
 		.url = "https://www.howsmyssl.com",
 		.event_handler = _http_event_handler,
-		.cert_pem = howsmyssl_com_root_cert_pem_start,
+		.crt_bundle_attach = esp_crt_bundle_attach,
 	};
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 	esp_err_t err = esp_http_client_perform( client );
@@ -617,6 +623,7 @@ static void https_async( void )
 	esp_http_client_config_t config = {
 		.url = "https://postman-echo.com/post",
 		.event_handler = _http_event_handler,
+		.cert_pem = postman_root_cert_pem_start,
 		.is_async = true,
 		.timeout_ms = 5000,
 	};
@@ -712,7 +719,7 @@ static void http_native_request( void )
 					"HTTP GET Status = %d, content_length = %d",
 					esp_http_client_get_status_code( client ),
 					esp_http_client_get_content_length( client ) );
-				ESP_LOG_BUFFER_HEX( TAG, output_buffer, strlen( output_buffer ) );
+				ESP_LOG_BUFFER_HEX( TAG, output_buffer, data_read );
 			}
 			else
 			{
@@ -820,7 +827,9 @@ static void http_test_task( void *pvParameters )
 	http_auth_basic();
 	http_auth_basic_redirect();
 #endif
+#if CONFIG_ESP_HTTP_CLIENT_ENABLE_DIGEST_AUTH
 	http_auth_digest();
+#endif
 	http_relative_redirect();
 	http_absolute_redirect();
 	https_with_url();

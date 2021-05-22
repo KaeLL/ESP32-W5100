@@ -1,4 +1,6 @@
 
+#include "sdkconfig.h"
+
 #include <stdio.h>
 #include <string.h>
 
@@ -13,6 +15,7 @@
 #include "freertos/event_groups.h"
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
+#include "esp_sntp.h"
 
 #include "eth_main.h"
 #include "esp_http_client_example.h"
@@ -116,7 +119,22 @@ void tasklol( void *p )
 	} );
 
 	xEventGroupWaitBits( eth_ev, GOT_IPV4, pdFALSE, pdTRUE, portMAX_DELAY );
+	setenv( "TZ", CONFIG_TZ_ENV, 1 );
+	tzset();
 
+	sntp_setoperatingmode( SNTP_OPMODE_POLL );
+	sntp_setservername( 0, "pool.ntp.org" );
+	sntp_init();
+
+	int retry = 0;
+	const int retry_count = 10;
+	while ( sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && ++retry < retry_count )
+	{
+		ESP_LOGI( TAG, "Waiting for system time to be set... (%d/%d)", retry, retry_count );
+		vTaskDelay( 2000 / portTICK_PERIOD_MS );
+	}
+
+	vTaskDelay( pdMS_TO_TICKS( 10000 ) );
 	http_client_test();
 	mqtt_example();
 
