@@ -4,4 +4,13 @@ menu "ESP32_W5100 configurations"
         default "GMT"
         help
             Manually set the TZ env_var. Defaults to GMT.
+
+    config TEST_DEINIT
+        bool "Enable deinit"
+
+    config TEST_STATIC_IP
+        bool "Enable static IP"
+
+    config TEST_W5100_CONFIG
+        bool "Enable W5100 config"
 endmenu

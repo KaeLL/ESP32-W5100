@@ -21,10 +21,15 @@
 #include "esp_http_client_example.h"
 #include "mqtt_example.h"
 
-static const char *TAG = "main";
-
 #define GOT_IPV4 BIT0
 
+struct
+{
+	esp_event_handler_instance_t eth_evt_hdl;
+	esp_event_handler_instance_t got_ip_evt_hdl;
+} evt_hdls;
+
+static const char *TAG = "main";
 EventGroupHandle_t eth_ev;
 
 /** Event handler for Ethernet events */
@@ -78,7 +83,7 @@ static void got_ip_event_handler( void *arg, esp_event_base_t event_base, int32_
 	xEventGroupSetBits( eth_ev, GOT_IPV4 );
 }
 
-void tasklol( void *p )
+void init(void)
 {
 	ESP_ERROR_CHECK( spi_bus_initialize( SPI3_HOST,
 		&( spi_bus_config_t ){ .miso_io_num = GPIO_NUM_19,
@@ -97,25 +102,52 @@ void tasklol( void *p )
 	eth_ev = xEventGroupCreate();
 
 	// Register user defined event handers
-	ESP_ERROR_CHECK( esp_event_handler_register( ETH_EVENT, ESP_EVENT_ANY_ID, &eth_event_handler, NULL ) );
-	ESP_ERROR_CHECK( esp_event_handler_register( IP_EVENT, IP_EVENT_ETH_GOT_IP, &got_ip_event_handler, NULL ) );
+	ESP_ERROR_CHECK( esp_event_handler_instance_register( ETH_EVENT,
+		ESP_EVENT_ANY_ID,
+		&eth_event_handler,
+		NULL,
+		&evt_hdls.eth_evt_hdl ) );
+	ESP_ERROR_CHECK( esp_event_handler_instance_register( IP_EVENT,
+		IP_EVENT_ETH_GOT_IP,
+		&got_ip_event_handler,
+		NULL,
+		&evt_hdls.got_ip_evt_hdl ) );
+}
 
-	// Uncomment the initializer list below to enable static IPv4
-	eth_main( &( struct eth_ifconfig ){
+#ifdef CONFIG_TEST_DEINIT
+void deinit(void)
+{
+	ESP_LOGD( TAG, "Starting deinit" );
+	eth_deinit();
+	ESP_ERROR_CHECK( esp_event_handler_instance_unregister( IP_EVENT, IP_EVENT_ETH_GOT_IP, evt_hdls.got_ip_evt_hdl ) );
+	ESP_ERROR_CHECK( esp_event_handler_instance_unregister( ETH_EVENT, ESP_EVENT_ANY_ID, evt_hdls.eth_evt_hdl ) );
+	ESP_ERROR_CHECK( esp_event_loop_delete_default() );
+	// ESP_ERROR_CHECK(esp_netif_deinit());
+	ESP_ERROR_CHECK( spi_bus_free( SPI3_HOST ) );
+	vEventGroupDelete( eth_ev );
+	ESP_LOGD( TAG, "Deinit finished" );
+}
+#endif
+
+void tasklol( void *p )
+{
+	init();
+	eth_init( &( struct eth_ifconfig ){
 		.hostname = "w5100_esp32",
-		// .sip = &(struct eth_static_ip)
-		// {
-		// 	.ip.u8 = { 192, 168, 251, 220 },
-		// 	.nm.u8 = { 255, 255, 255, 0 },
-		// 	.gw.u8 = { 192, 168, 251, 1 },
-		// 	.p_dns.u8 = { 1, 1, 1, 1 },
-		// 	.s_dns.u8 = { 8, 8, 8, 8 },
-		// 	.f_dns.u8 = { 8, 8, 4, 4 },
-		// },
-		// .w5100_cfg = &(const struct w5100_config_t)
-		// {
-		// 	.user_mutex = xSemaphoreCreateMutex()
-		// }
+#ifdef CONFIG_TEST_STATIC_IP
+		.sip =
+		{
+			.ip.u8 = { 192, 168, 251, 220 },
+			.nm.u8 = { 255, 255, 255, 0 },
+			.gw.u8 = { 192, 168, 251, 1 },
+			.p_dns.u8 = { 1, 1, 1, 1 },
+			.s_dns.u8 = { 8, 8, 8, 8 },
+			.f_dns.u8 = { 8, 8, 4, 4 },
+		},
+#endif
+#ifdef CONFIG_TEST_W5100_CONFIG
+		.w5100_cfg = { xSemaphoreCreateMutex() },
+#endif
 	} );
 
 	xEventGroupWaitBits( eth_ev, GOT_IPV4, pdFALSE, pdTRUE, portMAX_DELAY );
@@ -134,9 +166,12 @@ void tasklol( void *p )
 		vTaskDelay( 2000 / portTICK_PERIOD_MS );
 	}
 
-	vTaskDelay( pdMS_TO_TICKS( 10000 ) );
 	http_client_test();
 	mqtt_example();
+#ifdef CONFIG_TEST_DEINIT
+	vTaskDelay(pdMS_TO_TICKS(60000));
+	deinit();
+#endif
 
 	vTaskDelete( NULL );
 }
