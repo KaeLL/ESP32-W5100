@@ -44,8 +44,8 @@ extern const char postman_root_cert_pem_end[] asm( "_binary_postman_root_cert_pe
 
 esp_err_t _http_event_handler( esp_http_client_event_t *evt )
 {
-	static char *output_buffer; // Buffer to store response of http request from event handler
-	static int output_len;		// Stores number of bytes read
+	static char *output_buffer;	 // Buffer to store response of http request from event handler
+	static int output_len;		 // Stores number of bytes read
 	switch ( evt->event_id )
 	{
 		case HTTP_EVENT_ERROR:
@@ -137,7 +137,7 @@ static void http_rest_with_url( void )
 		.path = "/get",
 		.query = "esp",
 		.event_handler = _http_event_handler,
-		.user_data = local_response_buffer, // Pass address of local buffer to get response
+		.user_data = local_response_buffer,	 // Pass address of local buffer to get response
 		.disable_auto_redirect = true,
 	};
 	esp_http_client_handle_t client = esp_http_client_init( &config );
@@ -147,9 +147,9 @@ static void http_rest_with_url( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP GET Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP GET Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -167,9 +167,9 @@ static void http_rest_with_url( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP POST Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP POST Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -183,9 +183,9 @@ static void http_rest_with_url( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP PUT Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP PUT Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -200,9 +200,9 @@ static void http_rest_with_url( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP PATCH Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP PATCH Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -216,9 +216,9 @@ static void http_rest_with_url( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP DELETE Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP DELETE Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -232,9 +232,9 @@ static void http_rest_with_url( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP HEAD Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP HEAD Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -259,9 +259,9 @@ static void http_rest_with_hostname_path( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP GET Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP GET Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -277,9 +277,9 @@ static void http_rest_with_hostname_path( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP POST Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP POST Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -293,9 +293,9 @@ static void http_rest_with_hostname_path( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP PUT Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP PUT Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -310,9 +310,9 @@ static void http_rest_with_hostname_path( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP PATCH Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP PATCH Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -326,9 +326,9 @@ static void http_rest_with_hostname_path( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP DELETE Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP DELETE Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -342,9 +342,9 @@ static void http_rest_with_hostname_path( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP HEAD Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP HEAD Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -376,9 +376,9 @@ static void http_auth_basic( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP Basic Auth Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP Basic Auth Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -399,9 +399,9 @@ static void http_auth_basic_redirect( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP Basic Auth redirect Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP Basic Auth redirect Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -424,9 +424,9 @@ static void http_auth_digest( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP Digest Auth Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP Digest Auth Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -449,9 +449,9 @@ static void https_with_url( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTPS Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTPS Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -475,9 +475,9 @@ static void https_with_hostname_path( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTPS Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTPS Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -498,9 +498,9 @@ static void http_relative_redirect( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP Relative path redirect Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP Relative path redirect Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -521,9 +521,9 @@ static void http_absolute_redirect( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP Absolute path redirect Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP Absolute path redirect Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -544,9 +544,9 @@ static void http_redirect_to_https( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP redirect to HTTPS Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP redirect to HTTPS Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -567,9 +567,9 @@ static void http_download_chunk( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP chunk encoding Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP chunk encoding Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -610,9 +610,9 @@ static void http_perform_as_stream_reader( void )
 		ESP_LOGD( TAG, "read_len = %d", read_len );
 	}
 	ESP_LOGI( TAG,
-		"HTTP Stream reader Status = %d, content_length = %d",
-		esp_http_client_get_status_code( client ),
-		esp_http_client_get_content_length( client ) );
+			  "HTTP Stream reader Status = %d, content_length = %d",
+			  esp_http_client_get_status_code( client ),
+			  esp_http_client_get_content_length( client ) );
 	esp_http_client_close( client );
 	esp_http_client_cleanup( client );
 	free( buffer );
@@ -629,11 +629,11 @@ static void https_async( void )
 	};
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 	esp_err_t err;
-	const char *post_data
-		= "Using a Palantír requires a person with great strength of will and wisdom. The Palantíri were meant to "
-		  "be used by the Dúnedain to communicate throughout the Realms in Exile. During the War of the Ring, "
-		  "the Palantíri were used by many individuals. Sauron used the Ithil-stone to take advantage of the users "
-		  "of the other two stones, the Orthanc-stone and Anor-stone, but was also susceptible to deception himself.";
+	const char *post_data =
+		"Using a Palantír requires a person with great strength of will and wisdom. The Palantíri were meant to "
+		"be used by the Dúnedain to communicate throughout the Realms in Exile. During the War of the Ring, "
+		"the Palantíri were used by many individuals. Sauron used the Ithil-stone to take advantage of the users "
+		"of the other two stones, the Orthanc-stone and Anor-stone, but was also susceptible to deception himself.";
 	esp_http_client_set_method( client, HTTP_METHOD_POST );
 	esp_http_client_set_post_field( client, post_data, strlen( post_data ) );
 	while ( 1 )
@@ -647,9 +647,9 @@ static void https_async( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTPS Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTPS Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -670,9 +670,9 @@ static void https_with_invalid_url( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTPS Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTPS Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -689,7 +689,7 @@ static void https_with_invalid_url( void )
  */
 static void http_native_request( void )
 {
-	char output_buffer[ MAX_HTTP_OUTPUT_BUFFER ] = { 0 }; // Buffer to store response of http request
+	char output_buffer[ MAX_HTTP_OUTPUT_BUFFER ] = { 0 };  // Buffer to store response of http request
 	int content_length = 0;
 	esp_http_client_config_t config = {
 		.url = "http://httpbin.org/get",
@@ -716,9 +716,9 @@ static void http_native_request( void )
 			if ( data_read >= 0 )
 			{
 				ESP_LOGI( TAG,
-					"HTTP GET Status = %d, content_length = %d",
-					esp_http_client_get_status_code( client ),
-					esp_http_client_get_content_length( client ) );
+						  "HTTP GET Status = %d, content_length = %d",
+						  esp_http_client_get_status_code( client ),
+						  esp_http_client_get_content_length( client ) );
 				ESP_LOG_BUFFER_HEX( TAG, output_buffer, data_read );
 			}
 			else
@@ -750,9 +750,9 @@ static void http_native_request( void )
 		if ( data_read >= 0 )
 		{
 			ESP_LOGI( TAG,
-				"HTTP GET Status = %d, content_length = %d",
-				esp_http_client_get_status_code( client ),
-				esp_http_client_get_content_length( client ) );
+					  "HTTP GET Status = %d, content_length = %d",
+					  esp_http_client_get_status_code( client ),
+					  esp_http_client_get_content_length( client ) );
 			ESP_LOG_BUFFER_HEX( TAG, output_buffer, strlen( output_buffer ) );
 		}
 		else
@@ -777,9 +777,9 @@ static void http_partial_download( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -792,9 +792,9 @@ static void http_partial_download( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
@@ -807,9 +807,9 @@ static void http_partial_download( void )
 	if ( err == ESP_OK )
 	{
 		ESP_LOGI( TAG,
-			"HTTP Status = %d, content_length = %d",
-			esp_http_client_get_status_code( client ),
-			esp_http_client_get_content_length( client ) );
+				  "HTTP Status = %d, content_length = %d",
+				  esp_http_client_get_status_code( client ),
+				  esp_http_client_get_content_length( client ) );
 	}
 	else
 	{

@@ -45,13 +45,13 @@ static void eth_event_handler( void *arg, esp_event_base_t event_base, int32_t e
 			esp_eth_ioctl( eth_handle, ETH_CMD_G_MAC_ADDR, mac_addr );
 			ESP_LOGV( TAG, "Ethernet Link Up" );
 			ESP_LOGV( TAG,
-				"Ethernet HW Addr %02x:%02x:%02x:%02x:%02x:%02x",
-				mac_addr[ 0 ],
-				mac_addr[ 1 ],
-				mac_addr[ 2 ],
-				mac_addr[ 3 ],
-				mac_addr[ 4 ],
-				mac_addr[ 5 ] );
+					  "Ethernet HW Addr %02x:%02x:%02x:%02x:%02x:%02x",
+					  mac_addr[ 0 ],
+					  mac_addr[ 1 ],
+					  mac_addr[ 2 ],
+					  mac_addr[ 3 ],
+					  mac_addr[ 4 ],
+					  mac_addr[ 5 ] );
 			break;
 		case ETHERNET_EVENT_DISCONNECTED:
 			ESP_LOGI( TAG, "Ethernet Link Down" );
@@ -83,10 +83,12 @@ static void got_ip_event_handler( void *arg, esp_event_base_t event_base, int32_
 	xEventGroupSetBits( eth_ev, GOT_IPV4 );
 }
 
-void init(void)
+void init( void )
 {
-	ESP_ERROR_CHECK( spi_bus_initialize( SPI3_HOST,
-		&( spi_bus_config_t ){ .miso_io_num = GPIO_NUM_19,
+	ESP_ERROR_CHECK( spi_bus_initialize(
+		SPI3_HOST,
+		&( spi_bus_config_t ) {
+			.miso_io_num = GPIO_NUM_19,
 			.mosi_io_num = GPIO_NUM_23,
 			.sclk_io_num = GPIO_NUM_18,
 			.max_transfer_sz = 4,
@@ -102,20 +104,14 @@ void init(void)
 	eth_ev = xEventGroupCreate();
 
 	// Register user defined event handers
-	ESP_ERROR_CHECK( esp_event_handler_instance_register( ETH_EVENT,
-		ESP_EVENT_ANY_ID,
-		&eth_event_handler,
-		NULL,
-		&evt_hdls.eth_evt_hdl ) );
-	ESP_ERROR_CHECK( esp_event_handler_instance_register( IP_EVENT,
-		IP_EVENT_ETH_GOT_IP,
-		&got_ip_event_handler,
-		NULL,
-		&evt_hdls.got_ip_evt_hdl ) );
+	ESP_ERROR_CHECK(
+		esp_event_handler_instance_register( ETH_EVENT, ESP_EVENT_ANY_ID, &eth_event_handler, NULL, &evt_hdls.eth_evt_hdl ) );
+	ESP_ERROR_CHECK(
+		esp_event_handler_instance_register( IP_EVENT, IP_EVENT_ETH_GOT_IP, &got_ip_event_handler, NULL, &evt_hdls.got_ip_evt_hdl ) );
 }
 
 #ifdef CONFIG_TEST_DEINIT
-void deinit(void)
+void deinit( void )
 {
 	ESP_LOGD( TAG, "Starting deinit" );
 	eth_deinit();
@@ -169,7 +165,7 @@ void tasklol( void *p )
 	http_client_test();
 	mqtt_example();
 #ifdef CONFIG_TEST_DEINIT
-	vTaskDelay(pdMS_TO_TICKS(60000));
+	vTaskDelay( pdMS_TO_TICKS( 60000 ) );
 	deinit();
 #endif
 

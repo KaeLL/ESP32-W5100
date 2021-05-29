@@ -26,8 +26,8 @@
 static const char *TAG = "MQTTS_EXAMPLE";
 
 #if CONFIG_BROKER_CERTIFICATE_OVERRIDDEN == 1
-static const uint8_t mqtt_eclipseprojects_io_pem_start[]
-	= "-----BEGIN CERTIFICATE-----\n" CONFIG_BROKER_CERTIFICATE_OVERRIDE "\n-----END CERTIFICATE-----";
+static const uint8_t mqtt_eclipseprojects_io_pem_start[] =
+	"-----BEGIN CERTIFICATE-----\n" CONFIG_BROKER_CERTIFICATE_OVERRIDE "\n-----END CERTIFICATE-----";
 #else
 extern const uint8_t mqtt_eclipseprojects_io_pem_start[] asm( "_binary_mqtt_eclipseprojects_io_pem_start" );
 #endif
@@ -107,14 +107,12 @@ static void mqtt_event_handler( void *handler_args, esp_event_base_t base, int32
 			ESP_LOGI( TAG, "MQTT_EVENT_ERROR" );
 			if ( event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT )
 			{
-				ESP_LOGI( TAG,
-					"Last error code reported from esp-tls: 0x%x",
-					event->error_handle->esp_tls_last_esp_err );
+				ESP_LOGI( TAG, "Last error code reported from esp-tls: 0x%x", event->error_handle->esp_tls_last_esp_err );
 				ESP_LOGI( TAG, "Last tls stack error number: 0x%x", event->error_handle->esp_tls_stack_err );
 				ESP_LOGI( TAG,
-					"Last captured errno : %d (%s)",
-					event->error_handle->esp_transport_sock_errno,
-					strerror( event->error_handle->esp_transport_sock_errno ) );
+						  "Last captured errno : %d (%s)",
+						  event->error_handle->esp_transport_sock_errno,
+						  strerror( event->error_handle->esp_transport_sock_errno ) );
 			}
 			else if ( event->error_handle->error_type == MQTT_ERROR_TYPE_CONNECTION_REFUSED )
 			{
