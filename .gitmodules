@@ -1,3 +1,3 @@
-[submodule "components/w5100_esp32"]
-	path = components/w5100_esp32
+[submodule "components/w5100/w5100_esp32"]
+	path = components/w5100/w5100_esp32
 	url = https://github.com/KaeLL/w5100_esp32.git

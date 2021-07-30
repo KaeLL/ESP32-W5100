@@ -1,0 +1,117 @@
+menu "W5100 configurations"
+    config W5100_RESET_GPIO
+        int "/RESET pin's GPIO number"
+        default 12
+        help
+            GPIO connected to W5100's /RESET pin.
+
+    config W5100_SPI_EN_MANUAL
+        bool "MCU must drive SPI_EN pin"
+        default y
+        help
+            Enable this in case the ESP32 must drive W5100's SPI_EN pin.
+            Needed if the W5100 shares the SPI bus with another device.
+
+    config W5100_SPI_EN_GPIO
+        depends on W5100_SPI_EN_MANUAL
+        int "SPI_EN pin's GPIO number"
+        default 22
+
+    config W5100_SPI_CLCK
+        int "SPI clock speed (hz)"
+        default 300000
+        help
+            Clock speed that should be used to communicate with W5100.
+
+    menu "W5100 debug options"
+        config W5100_DEBUG_TX
+            bool "Dump data sent (TX)"
+            help
+                Dump data sent to the chip
+
+        config W5100_DEBUG_RX
+            bool "Dump data received (RX)"
+            help
+                Dump data received from the chip
+    endmenu
+
+    config EMAC_RECV_TASK_ENABLE_CORE_AFFINITY
+        bool "Enable W5100 recv task core selection"
+        default y
+        help
+            Enable this to manually set W5100's recv task affinity. May be needed
+            in order to balance load across cores depending on workload.
+            Leave it disabled for no affinity.
+
+    config EMAC_RECV_TASK_CORE
+        depends on EMAC_RECV_TASK_ENABLE_CORE_AFFINITY
+        int "Which core?"
+        range 0 1
+        default 1
+        help
+            Select the core to pin the task to
+            0 - PRO CPU
+            1 - APP CPU
+
+    config EMAC_RX_TASK_YIELD_TICKS
+        int "RX task yield duration (ticks)"
+        range 0 2147483647
+        default 1
+        help
+            Amount of CPU ticks the RX task will yield after each run of its
+            loop. Since the yield is performed by the ulTaskNotifyTake()
+            function, this is also how long the task will wait for notifications
+            from the EMAC. A value greater than 0 keeps the task from monopolizing
+            CPU, which is especially useful in the presence of time-sensitive
+            code or peripherals.
+
+    config W5100_SPI_BUS_ACQUIRE
+        bool "Enable bus acquiring"
+        help
+            This allows the SPI driver to assume all transactions will be directed to
+            the same device, optimizing transactions and executing them in a back to back
+            fashion. Only enable it if W5100 is the only device in the SPI bus.
+
+    config W5100_CS
+        int "W5100 CS GPIO"
+        default 17
+        help
+            GPIO connected to W5100's Slave Select line
+
+    config W5100_SPI_LOCK
+        bool "Enable driver locks"
+        help
+            Enable/disable locks around each SPI transaction.
+            Only disable it if you're providing your own synchronization.
+
+    config W5100_SPI_BUS
+        int "SPI bus"
+        default 3
+        help
+            SPI bus to be used.
+            1 = SPI_HOST
+            2 = HSPI_HOST
+            3 = VSPI_HOST
+            Only select 1 if you know what you're doing. Check SPI Master documentation
+            for more info.
+
+    choice W5100_SPI_TRANS_TYPE
+        prompt "Type of SPI transaction"
+        default W5100_INTERRUPT_SPI_TRANS
+        help
+            Type of SPI transaction to be used.
+            Prefer Interrupt if you don't know the implications of this.
+
+        config W5100_POLLING_SPI_TRANS
+            bool "Polling"
+        config W5100_INTERRUPT_SPI_TRANS
+            bool "Interrupt"
+    endchoice
+
+    config W5100_SPI_QUEUE_SIZE
+        int "SPI queue size"
+        default 1
+        depends on W5100_INTERRUPT_SPI_TRANS
+        help
+            Amount of transactions that can be queued to the device at once.
+endmenu
