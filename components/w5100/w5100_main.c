@@ -1,6 +1,4 @@
 
-#include "sdkconfig.h"
-
 #include "esp_event.h"
 #include "esp_log.h"
 #include "freertos/event_groups.h"
@@ -109,7 +107,7 @@ void w5100_start()
 		{
 			.init = w5100_spi_init,
 			.deinit = w5100_spi_deinit,
-			.hw_reset = w5100_ll_hw_reset,
+			.ll_hw_reset = w5100_ll_hw_reset,
 			.read = w5100_read,
 			.write = w5100_write
 		},
