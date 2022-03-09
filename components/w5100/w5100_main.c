@@ -114,9 +114,9 @@ void w5100_start()
 #ifdef CONFIG_TEST_STATIC_IP
 		.sip =
 		{
-			.ip.u8 = { 192, 168, 251, 220 },
-			.nm.u8 = { 255, 255, 255, 0 },
-			.gw.u8 = { 192, 168, 251, 1 },
+			.ip.u8 = { 192, 168, 88, 10 },
+			.nm.u8 = { 255, 255, 255, 224 },
+			.gw.u8 = { 192, 168, 88, 1 },
 			.p_dns.u8 = { 1, 1, 1, 1 },
 			.s_dns.u8 = { 8, 8, 8, 8 },
 			.f_dns.u8 = { 8, 8, 4, 4 },
@@ -129,14 +129,14 @@ void w5100_start()
 	tzset();
 
 	sntp_setoperatingmode( SNTP_OPMODE_POLL );
-	sntp_setservername( 0, "pool.ntp.org" );
+	sntp_setservername( 0, "c.ntp.br" );
 	sntp_init();
 
 	int retry = 1;
 	while ( sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET )
 	{
 		ESP_LOGI( TAG, "Waiting for system time to be set... (%d)", retry++ );
-		vTaskDelay( 2000 / portTICK_PERIOD_MS );
+		vTaskDelay( pdMS_TO_TICKS( 2000 ) );
 	}
 
 	http_client_test();

@@ -5,6 +5,7 @@
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"
+#include "soc/gpio_struct.h"
 #include "esp_attr.h"
 #include "driver/spi_master.h"
 

@@ -1,4 +1,4 @@
 idf_component_register(
     SRCS "main.c"
-    PRIV_REQUIRES w5100
+    PRIV_REQUIRES driver w5100
 )
