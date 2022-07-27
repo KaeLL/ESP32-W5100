@@ -113,12 +113,12 @@ void w5100_start()
 #ifdef CONFIG_TEST_STATIC_IP
 		.sip =
 		{
-			.ip.u8 = { 192, 168, 88, 10 },
-			.nm.u8 = { 255, 255, 255, 224 },
-			.gw.u8 = { 192, 168, 88, 1 },
-			.p_dns.u8 = { 1, 1, 1, 1 },
-			.s_dns.u8 = { 8, 8, 8, 8 },
-			.f_dns.u8 = { 8, 8, 4, 4 },
+			.net.ip.addr = ESP_IP4TOADDR(192, 168, 251, 42),
+			.net.netmask.addr = ESP_IP4TOADDR(255, 255, 255, 0),
+			.net.gw.addr = ESP_IP4TOADDR(192, 168, 251, 1),
+			.p_dns.addr = ESP_IP4TOADDR(1, 1, 1, 1),
+			.s_dns.addr = ESP_IP4TOADDR(8, 8, 8, 8),
+			.f_dns.addr = ESP_IP4TOADDR(8, 8, 4, 4),
 		},
 #endif
 	} );

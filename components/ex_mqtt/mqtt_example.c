@@ -12,8 +12,10 @@
 #include <stddef.h>
 #include <string.h>
 #include "esp_system.h"
-#include "esp_event.h"
-#include "esp_netif.h"
+// #include "nvs_flash.h"
+// #include "esp_event.h"
+// #include "esp_netif.h"
+// #include "protocol_examples_common.h"
 
 #include "esp_log.h"
 #include "mqtt_client.h"
@@ -132,8 +134,8 @@ static void mqtt_event_handler( void *handler_args, esp_event_base_t base, int32
 static void mqtt_app_start( void )
 {
 	const esp_mqtt_client_config_t mqtt_cfg = {
-		.uri = CONFIG_BROKER_URI,
-		.cert_pem = ( const char * )mqtt_eclipseprojects_io_pem_start,
+		.broker = { .address.uri = CONFIG_BROKER_URI,
+					.verification.certificate = ( const char * )mqtt_eclipseprojects_io_pem_start },
 	};
 
 	ESP_LOGI( TAG, "[APP] Free memory: %d bytes", esp_get_free_heap_size() );

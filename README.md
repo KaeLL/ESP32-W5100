@@ -8,4 +8,4 @@ The code assumes my specific design, such as
 GPIOs, but the most important one is polling
 status instead of using interrupts.
 
-Base IDF rev.: [5963de1](https://github.com/espressif/esp-idf/commit/5963de1caf284b14ddfed11e52730a55e3783a3d)
+Last update based on: espressif/esp-idf@36f49f361c001b49c538364056bc5d2d04c6f321
