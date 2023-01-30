@@ -12,6 +12,7 @@
 #include <stddef.h>
 #include <string.h>
 #include "esp_system.h"
+#include "esp_partition.h"
 // #include "nvs_flash.h"
 // #include "esp_event.h"
 // #include "esp_netif.h"
@@ -41,10 +42,10 @@ extern const uint8_t mqtt_eclipseprojects_io_pem_end[] asm( "_binary_mqtt_eclips
 //
 static void send_binary( esp_mqtt_client_handle_t client )
 {
-	spi_flash_mmap_handle_t out_handle;
+	esp_partition_mmap_handle_t out_handle;
 	const void *binary_address;
 	const esp_partition_t *partition = esp_ota_get_running_partition();
-	esp_partition_mmap( partition, 0, partition->size, SPI_FLASH_MMAP_DATA, &binary_address, &out_handle );
+	esp_partition_mmap( partition, 0, partition->size, ESP_PARTITION_MMAP_DATA, &binary_address, &out_handle );
 	// sending only the configured portion of the partition (if it's less than the partition size)
 	int binary_size = MIN( CONFIG_BROKER_BIN_SIZE_TO_SEND, partition->size );
 	int msg_id = esp_mqtt_client_publish( client, "/topic/binary", binary_address, binary_size, 0, 0 );
@@ -63,7 +64,7 @@ static void send_binary( esp_mqtt_client_handle_t client )
  */
 static void mqtt_event_handler( void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data )
 {
-	ESP_LOGD( TAG, "Event dispatched from event loop base=%s, event_id=%d", base, event_id );
+	ESP_LOGD( TAG, "Event dispatched from event loop base=%s, event_id=%" PRIi32, base, event_id );
 	esp_mqtt_event_handle_t event = event_data;
 	esp_mqtt_client_handle_t client = event->client;
 	int msg_id;
@@ -71,10 +72,10 @@ static void mqtt_event_handler( void *handler_args, esp_event_base_t base, int32
 	{
 		case MQTT_EVENT_CONNECTED:
 			ESP_LOGI( TAG, "MQTT_EVENT_CONNECTED" );
-			msg_id = esp_mqtt_client_subscribe( client, "/topic/qos0", 0 );
+			msg_id = esp_mqtt_client_subscribe( client, ( char * )"/topic/qos0", 0 );
 			ESP_LOGI( TAG, "sent subscribe successful, msg_id=%d", msg_id );
 
-			msg_id = esp_mqtt_client_subscribe( client, "/topic/qos1", 1 );
+			msg_id = esp_mqtt_client_subscribe( client, ( char * )"/topic/qos1", 1 );
 			ESP_LOGI( TAG, "sent subscribe successful, msg_id=%d", msg_id );
 
 			msg_id = esp_mqtt_client_unsubscribe( client, "/topic/qos1" );
@@ -138,7 +139,7 @@ static void mqtt_app_start( void )
 					.verification.certificate = ( const char * )mqtt_eclipseprojects_io_pem_start },
 	};
 
-	ESP_LOGI( TAG, "[APP] Free memory: %d bytes", esp_get_free_heap_size() );
+	ESP_LOGI( TAG, "[APP] Free memory: %" PRIu32 " bytes", esp_get_free_heap_size() );
 	esp_mqtt_client_handle_t client = esp_mqtt_client_init( &mqtt_cfg );
 	/* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
 	esp_mqtt_client_register_event( client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL );
@@ -148,7 +149,7 @@ static void mqtt_app_start( void )
 void mqtt_example( void )
 {
 	ESP_LOGI( TAG, "[APP] Startup.." );
-	ESP_LOGI( TAG, "[APP] Free memory: %d bytes", esp_get_free_heap_size() );
+	ESP_LOGI( TAG, "[APP] Free memory: %" PRIu32 " bytes", esp_get_free_heap_size() );
 	ESP_LOGI( TAG, "[APP] IDF version: %s", esp_get_idf_version() );
 
 	mqtt_app_start();

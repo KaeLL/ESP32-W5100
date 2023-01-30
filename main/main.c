@@ -1,18 +1,20 @@
 
+#include <time.h>
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/spi_master.h"
 #include "driver/gpio.h"
 #include "esp_netif.h"
 #include "esp_event.h"
-#include "esp_sntp.h"
+#include "esp_netif_sntp.h"
 #include "esp_log.h"
 
 #include "w5100_main.h"
 #include "mqtt_example.h"
 #include "esp_http_client_example.h"
 
-static const char *const TAG = "main";
+static const char *const __unused TAG = "main";
 
 void tasklol( void *p )
 {
@@ -34,19 +36,10 @@ void tasklol( void *p )
 
 	w5100_start();
 
-	setenv( "TZ", CONFIG_TZ_ENV, 1 );
+	ESP_ERROR_CHECK( setenv( "TZ", CONFIG_TZ_ENV, 1 ) );
 	tzset();
-
-	sntp_setoperatingmode( SNTP_OPMODE_POLL );
-	sntp_setservername( 0, "c.ntp.br" );
-	sntp_init();
-
-	int retry = 1;
-	while ( sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET )
-	{
-		ESP_LOGI( TAG, "Waiting for system time to be set... (%d)", retry++ );
-		vTaskDelay( pdMS_TO_TICKS( 2000 ) );
-	}
+	ESP_ERROR_CHECK( esp_netif_sntp_init( &( const esp_sntp_config_t )ESP_NETIF_SNTP_DEFAULT_CONFIG( "pool.ntp.org" ) ) );
+	ESP_ERROR_CHECK( esp_netif_sntp_sync_wait( pdMS_TO_TICKS( 20000 ) ) );
 
 	http_client_test();
 	mqtt_example();
