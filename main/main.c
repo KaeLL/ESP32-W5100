@@ -1,18 +1,18 @@
 
-#include <time.h>
+#include "eth-w5100-main.h"
 
+#include "driver/gpio.h"
+#include "driver/spi_master.h"
+#include "esp_event.h"
+#include "esp_http_client_example.h"
+#include "esp_log.h"
+#include "esp_netif.h"
+#include "esp_netif_sntp.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "driver/spi_master.h"
-#include "driver/gpio.h"
-#include "esp_netif.h"
-#include "esp_event.h"
-#include "esp_netif_sntp.h"
-#include "esp_log.h"
-
-#include "w5100_main.h"
 #include "mqtt_example.h"
-#include "esp_http_client_example.h"
+
+#include <time.h>
 
 static const char *const __unused TAG = "main";
 

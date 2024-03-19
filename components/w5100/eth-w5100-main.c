@@ -1,13 +1,14 @@
 
+#include "eth-w5100-main.h"
+
+#include "eth-w5100-ll.h"
+#include "eth-w5100.h"
+
+#include "esp_eth.h"
 #include "esp_event.h"
 #include "esp_log.h"
-#include "freertos/event_groups.h"
-#include "esp_eth.h"
-#include "esp_netif_types.h"
 
-#include "eth_main.h"
-#include "w5100_main.h"
-#include "w5100_ll.h"
+#include <stdint.h>
 
 #define GOT_IPV4 BIT0
 
@@ -32,14 +33,15 @@ static void eth_event_handler( void *arg, esp_event_base_t event_base, int32_t e
 		case ETHERNET_EVENT_CONNECTED:
 			esp_eth_ioctl( eth_handle, ETH_CMD_G_MAC_ADDR, mac_addr );
 			ESP_LOGV( TAG, "Ethernet Link Up" );
-			ESP_LOGV( TAG,
-					  "Ethernet HW Addr %02x:%02x:%02x:%02x:%02x:%02x",
-					  mac_addr[ 0 ],
-					  mac_addr[ 1 ],
-					  mac_addr[ 2 ],
-					  mac_addr[ 3 ],
-					  mac_addr[ 4 ],
-					  mac_addr[ 5 ] );
+			ESP_LOGV(
+				TAG,
+				"Ethernet HW Addr %02x:%02x:%02x:%02x:%02x:%02x",
+				mac_addr[ 0 ],
+				mac_addr[ 1 ],
+				mac_addr[ 2 ],
+				mac_addr[ 3 ],
+				mac_addr[ 4 ],
+				mac_addr[ 5 ] );
 			break;
 		case ETHERNET_EVENT_DISCONNECTED:
 			ESP_LOGI( TAG, "Ethernet Link Down" );
@@ -71,7 +73,7 @@ static void got_ip_event_handler( void *arg, esp_event_base_t event_base, int32_
 	xEventGroupSetBits( eth_ev, GOT_IPV4 );
 }
 
-void init( void )
+static void init( void )
 {
 	eth_ev = xEventGroupCreate();
 

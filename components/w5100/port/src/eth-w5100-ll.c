@@ -1,12 +1,9 @@
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/semphr.h"
-#include "freertos/task.h"
-#include "driver/gpio.h"
-#include "soc/gpio_struct.h"
-#include "driver/spi_master.h"
+#include "eth-w5100-ll.h"
 
-#include "w5100_ll.h"
+#include "driver/gpio.h"
+#include "driver/spi_master.h"
+#include "soc/gpio_struct.h"
 
 #define eth_lock()	 ESP_ERROR_CHECK( pdTRUE != xSemaphoreTake( eth_mutex, pdMS_TO_TICKS( 10000 ) ) )
 #define eth_unlock() ESP_ERROR_CHECK( pdTRUE != xSemaphoreGive( eth_mutex ) )
@@ -36,9 +33,8 @@ void w5100_ll_hw_reset( void )
 
 void w5100_spi_init( void )
 {
-	ESP_ERROR_CHECK( gpio_config( &( const gpio_config_t ) {
-		.pin_bit_mask = BIT64( GPIO_NUM_12 ) | BIT64( GPIO_NUM_22 ),
-		.mode = GPIO_MODE_OUTPUT } ) );
+	ESP_ERROR_CHECK( gpio_config(
+		&( const gpio_config_t ) { .pin_bit_mask = BIT64( GPIO_NUM_12 ) | BIT64( GPIO_NUM_22 ), .mode = GPIO_MODE_OUTPUT } ) );
 	ESP_ERROR_CHECK( !( eth_mutex = xSemaphoreCreateMutex() ) );
 	ESP_ERROR_CHECK( spi_bus_add_device(
 		VSPI_HOST,

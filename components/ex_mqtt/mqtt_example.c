@@ -7,24 +7,25 @@
    CONDITIONS OF ANY KIND, either express or implied.
 */
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stddef.h>
-#include <string.h>
-#include "esp_system.h"
 #include "esp_partition.h"
+#include "esp_system.h"
+
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 // #include "nvs_flash.h"
 // #include "esp_event.h"
 // #include "esp_netif.h"
 // #include "protocol_examples_common.h"
 
 #include "esp_log.h"
-#include "mqtt_client.h"
-#include "esp_tls.h"
 #include "esp_ota_ops.h"
-#include <sys/param.h>
-
+#include "esp_tls.h"
+#include "mqtt_client.h"
 #include "mqtt_example.h"
+
+#include <sys/param.h>
 
 static const char *TAG = "MQTTS_EXAMPLE";
 
@@ -112,10 +113,11 @@ static void mqtt_event_handler( void *handler_args, esp_event_base_t base, int32
 			{
 				ESP_LOGI( TAG, "Last error code reported from esp-tls: 0x%x", event->error_handle->esp_tls_last_esp_err );
 				ESP_LOGI( TAG, "Last tls stack error number: 0x%x", event->error_handle->esp_tls_stack_err );
-				ESP_LOGI( TAG,
-						  "Last captured errno : %d (%s)",
-						  event->error_handle->esp_transport_sock_errno,
-						  strerror( event->error_handle->esp_transport_sock_errno ) );
+				ESP_LOGI(
+					TAG,
+					"Last captured errno : %d (%s)",
+					event->error_handle->esp_transport_sock_errno,
+					strerror( event->error_handle->esp_transport_sock_errno ) );
 			}
 			else if ( event->error_handle->error_type == MQTT_ERROR_TYPE_CONNECTION_REFUSED )
 			{
@@ -135,8 +137,7 @@ static void mqtt_event_handler( void *handler_args, esp_event_base_t base, int32
 static void mqtt_app_start( void )
 {
 	const esp_mqtt_client_config_t mqtt_cfg = {
-		.broker = { .address.uri = CONFIG_BROKER_URI,
-					.verification.certificate = ( const char * )mqtt_eclipseprojects_io_pem_start },
+		.broker = {.address.uri = CONFIG_BROKER_URI, .verification.certificate = ( const char * )mqtt_eclipseprojects_io_pem_start},
 	};
 
 	ESP_LOGI( TAG, "[APP] Free memory: %" PRIu32 " bytes", esp_get_free_heap_size() );
