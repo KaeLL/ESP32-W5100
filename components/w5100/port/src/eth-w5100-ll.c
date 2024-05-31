@@ -39,7 +39,7 @@ void w5100_spi_init( void )
 	ESP_ERROR_CHECK( spi_bus_add_device(
 		VSPI_HOST,
 		&( spi_device_interface_config_t ) {
-			.clock_speed_hz = 1000000,
+			.clock_speed_hz = 1200000,
 			.spics_io_num = 17,
 			.queue_size = 1,
 			.pre_cb = w5100_SPI_EN_assert,
@@ -57,7 +57,7 @@ void w5100_spi_deinit( void )
 	vSemaphoreDelete( eth_mutex );
 }
 
-int w5100_read( const uint16_t addr, uint8_t *const data_rx, const uint32_t size )
+void w5100_read( const uint16_t addr, uint8_t *const data_rx, const uint32_t size )
 {
 	spi_transaction_t trans = { .flags = SPI_TRANS_USE_RXDATA | SPI_TRANS_USE_TXDATA, .length = 32 };
 	eth_lock();
@@ -68,11 +68,9 @@ int w5100_read( const uint16_t addr, uint8_t *const data_rx, const uint32_t size
 		data_rx[ i ] = trans.rx_data[ 3 ];
 	}
 	eth_unlock();
-
-	return 0;
 }
 
-int w5100_write( const uint16_t addr, const uint8_t *const data_tx, const uint32_t size )
+void w5100_write( const uint16_t addr, const uint8_t *const data_tx, const uint32_t size )
 {
 	spi_transaction_t trans = { .flags = SPI_TRANS_USE_RXDATA | SPI_TRANS_USE_TXDATA, .length = 32 };
 	eth_lock();
@@ -82,6 +80,4 @@ int w5100_write( const uint16_t addr, const uint8_t *const data_tx, const uint32
 		ESP_ERROR_CHECK( spi_device_transmit( w5100_spi_handle, &trans ) );
 	}
 	eth_unlock();
-
-	return 0;
 }
