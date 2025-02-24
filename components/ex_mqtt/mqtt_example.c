@@ -111,7 +111,10 @@ static void mqtt_event_handler( void *handler_args, esp_event_base_t base, int32
 			ESP_LOGI( TAG, "MQTT_EVENT_ERROR" );
 			if ( event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT )
 			{
-				ESP_LOGI( TAG, "Last error code reported from esp-tls: 0x%x", event->error_handle->esp_tls_last_esp_err );
+				ESP_LOGI(
+					TAG,
+					"Last error code reported from esp-tls: 0x%x",
+					event->error_handle->esp_tls_last_esp_err );
 				ESP_LOGI( TAG, "Last tls stack error number: 0x%x", event->error_handle->esp_tls_stack_err );
 				ESP_LOGI(
 					TAG,
@@ -137,7 +140,8 @@ static void mqtt_event_handler( void *handler_args, esp_event_base_t base, int32
 static void mqtt_app_start( void )
 {
 	const esp_mqtt_client_config_t mqtt_cfg = {
-		.broker = { .address.uri = CONFIG_BROKER_URI, .verification.certificate = ( const char * )mqtt_eclipseprojects_io_pem_start },
+		.broker = { .address.uri = CONFIG_BROKER_URI,
+					.verification.certificate = ( const char * )mqtt_eclipseprojects_io_pem_start },
 	};
 
 	ESP_LOGI( TAG, "[APP] Free memory: %" PRIu32 " bytes", esp_get_free_heap_size() );

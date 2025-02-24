@@ -1,6 +1,4 @@
 
-#include "eth-w5100-main.h"
-
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
 #include "esp_event.h"
@@ -8,6 +6,7 @@
 #include "esp_log.h"
 #include "esp_netif.h"
 #include "esp_netif_sntp.h"
+#include "eth-w5100-main.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "mqtt_example.h"
@@ -38,7 +37,8 @@ void tasklol( void *p )
 
 	ESP_ERROR_CHECK( setenv( "TZ", CONFIG_TZ_ENV, 1 ) );
 	tzset();
-	ESP_ERROR_CHECK( esp_netif_sntp_init( &( const esp_sntp_config_t )ESP_NETIF_SNTP_DEFAULT_CONFIG( "pool.ntp.org" ) ) );
+	ESP_ERROR_CHECK(
+		esp_netif_sntp_init( &( const esp_sntp_config_t )ESP_NETIF_SNTP_DEFAULT_CONFIG( "pool.ntp.org" ) ) );
 	ESP_ERROR_CHECK( esp_netif_sntp_sync_wait( pdMS_TO_TICKS( 20000 ) ) );
 
 	http_client_test();

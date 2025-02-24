@@ -12,6 +12,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <sys/param.h>
 // #include "nvs_flash.h"
 // #include "esp_event.h"
@@ -76,9 +77,9 @@ esp_err_t _http_event_handler( esp_http_client_event_t *evt )
 				memset( evt->user_data, 0, MAX_HTTP_OUTPUT_BUFFER );
 			}
 			/*
-             *  Check for chunked encoding is added as the URL for chunked encoding used in this example returns binary data.
-             *  However, event handler can also be used in case chunked encoding is used.
-             */
+			 *  Check for chunked encoding is added as the URL for chunked encoding used in this example returns binary
+			 * data. However, event handler can also be used in case chunked encoding is used.
+			 */
 			if ( !esp_http_client_is_chunked_response( evt->client ) )
 			{
 				// If user_data buffer is configured, copy the response into the buffer
@@ -95,7 +96,8 @@ esp_err_t _http_event_handler( esp_http_client_event_t *evt )
 					int content_len = esp_http_client_get_content_length( evt->client );
 					if ( output_buffer == NULL )
 					{
-						// We initialize output_buffer with 0 because it is used by strlen() and similar functions therefore should be null terminated.
+						// We initialize output_buffer with 0 because it is used by strlen() and similar functions
+						// therefore should be null terminated.
 						output_buffer = ( char * )calloc( content_len + 1, sizeof( char ) );
 						output_len = 0;
 						if ( output_buffer == NULL )
@@ -155,12 +157,12 @@ static void http_rest_with_url( void )
 	// it is used by functions like strlen(). The buffer should only be used upto size MAX_HTTP_OUTPUT_BUFFER
 	char local_response_buffer[ MAX_HTTP_OUTPUT_BUFFER + 1 ] = { 0 };
 	/**
-     * NOTE: All the configuration parameters for http_client must be spefied either in URL or as host and path parameters.
-     * If host and path parameters are not set, query parameter will be ignored. In such cases,
-     * query parameter should be specified in URL.
-     *
-     * If URL as well as host and path parameters are specified, values of host and path will be considered.
-     */
+	 * NOTE: All the configuration parameters for http_client must be spefied either in URL or as host and path
+	 * parameters. If host and path parameters are not set, query parameter will be ignored. In such cases, query
+	 * parameter should be specified in URL.
+	 *
+	 * If URL as well as host and path parameters are specified, values of host and path will be considered.
+	 */
 	esp_http_client_config_t config = {
 		.host = CONFIG_EXAMPLE_HTTP_ENDPOINT,
 		.path = "/get",
@@ -207,7 +209,7 @@ static void http_rest_with_url( void )
 		ESP_LOGE( TAG, "HTTP POST request failed: %s", esp_err_to_name( err ) );
 	}
 
-	//PUT
+	// PUT
 	esp_http_client_set_url( client, "http://" CONFIG_EXAMPLE_HTTP_ENDPOINT "/put" );
 	esp_http_client_set_method( client, HTTP_METHOD_PUT );
 	err = esp_http_client_perform( client );
@@ -224,7 +226,7 @@ static void http_rest_with_url( void )
 		ESP_LOGE( TAG, "HTTP PUT request failed: %s", esp_err_to_name( err ) );
 	}
 
-	//PATCH
+	// PATCH
 	esp_http_client_set_url( client, "http://" CONFIG_EXAMPLE_HTTP_ENDPOINT "/patch" );
 	esp_http_client_set_method( client, HTTP_METHOD_PATCH );
 	esp_http_client_set_post_field( client, NULL, 0 );
@@ -242,7 +244,7 @@ static void http_rest_with_url( void )
 		ESP_LOGE( TAG, "HTTP PATCH request failed: %s", esp_err_to_name( err ) );
 	}
 
-	//DELETE
+	// DELETE
 	esp_http_client_set_url( client, "http://" CONFIG_EXAMPLE_HTTP_ENDPOINT "/delete" );
 	esp_http_client_set_method( client, HTTP_METHOD_DELETE );
 	err = esp_http_client_perform( client );
@@ -259,7 +261,7 @@ static void http_rest_with_url( void )
 		ESP_LOGE( TAG, "HTTP DELETE request failed: %s", esp_err_to_name( err ) );
 	}
 
-	//HEAD
+	// HEAD
 	esp_http_client_set_url( client, "http://" CONFIG_EXAMPLE_HTTP_ENDPOINT "/get" );
 	esp_http_client_set_method( client, HTTP_METHOD_HEAD );
 	err = esp_http_client_perform( client );
@@ -323,7 +325,7 @@ static void http_rest_with_hostname_path( void )
 		ESP_LOGE( TAG, "HTTP POST request failed: %s", esp_err_to_name( err ) );
 	}
 
-	//PUT
+	// PUT
 	esp_http_client_set_url( client, "/put" );
 	esp_http_client_set_method( client, HTTP_METHOD_PUT );
 	err = esp_http_client_perform( client );
@@ -340,7 +342,7 @@ static void http_rest_with_hostname_path( void )
 		ESP_LOGE( TAG, "HTTP PUT request failed: %s", esp_err_to_name( err ) );
 	}
 
-	//PATCH
+	// PATCH
 	esp_http_client_set_url( client, "/patch" );
 	esp_http_client_set_method( client, HTTP_METHOD_PATCH );
 	esp_http_client_set_post_field( client, NULL, 0 );
@@ -358,7 +360,7 @@ static void http_rest_with_hostname_path( void )
 		ESP_LOGE( TAG, "HTTP PATCH request failed: %s", esp_err_to_name( err ) );
 	}
 
-	//DELETE
+	// DELETE
 	esp_http_client_set_url( client, "/delete" );
 	esp_http_client_set_method( client, HTTP_METHOD_DELETE );
 	err = esp_http_client_perform( client );
@@ -375,7 +377,7 @@ static void http_rest_with_hostname_path( void )
 		ESP_LOGE( TAG, "HTTP DELETE request failed: %s", esp_err_to_name( err ) );
 	}
 
-	//HEAD
+	// HEAD
 	esp_http_client_set_url( client, "/get" );
 	esp_http_client_set_method( client, HTTP_METHOD_HEAD );
 	err = esp_http_client_perform( client );
@@ -399,12 +401,12 @@ static void http_rest_with_hostname_path( void )
 static void http_auth_basic( void )
 {
 	/**
-     * Note: `max_authorization_retries` in esp_http_client_config_t
-     * can be used to configure number of retry attempts to be performed
-     * in case unauthorized status code is received.
-     *
-     * To disable authorization retries, set max_authorization_retries to -1.
-     */
+	 * Note: `max_authorization_retries` in esp_http_client_config_t
+	 * can be used to configure number of retry attempts to be performed
+	 * in case unauthorized status code is received.
+	 *
+	 * To disable authorization retries, set max_authorization_retries to -1.
+	 */
 	esp_http_client_config_t config = {
 		.url = "http://user:passwd@" CONFIG_EXAMPLE_HTTP_ENDPOINT "/basic-auth/user/passwd",
 		.event_handler = _http_event_handler,

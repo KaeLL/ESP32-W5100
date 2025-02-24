@@ -8,8 +8,8 @@
 #define eth_lock()	 ESP_ERROR_CHECK( pdTRUE != xSemaphoreTake( eth_mutex, pdMS_TO_TICKS( 10000 ) ) )
 #define eth_unlock() ESP_ERROR_CHECK( pdTRUE != xSemaphoreGive( eth_mutex ) )
 
-#define W_PCK( address, data ) ( __builtin_bswap32( ( 0xF0000000 | ( address ) << 8 | ( data ) ) ) )
-#define R_PCK( address )	   ( __builtin_bswap32( ( 0x0F000000 | ( address ) << 8 ) ) )
+#define W_PCK( address, data ) ( __builtin_bswap32(( 0xF0000000 | ( address ) << 8 | ( data ) )) )
+#define R_PCK( address )	   ( __builtin_bswap32(( 0x0F000000 | ( address ) << 8 )) )
 
 spi_device_handle_t w5100_spi_handle = NULL;
 SemaphoreHandle_t eth_mutex;
@@ -33,8 +33,9 @@ void w5100_ll_hw_reset( void )
 
 void w5100_spi_init( void )
 {
-	ESP_ERROR_CHECK( gpio_config(
-		&( const gpio_config_t ) { .pin_bit_mask = BIT64( GPIO_NUM_12 ) | BIT64( GPIO_NUM_22 ), .mode = GPIO_MODE_OUTPUT } ) );
+	ESP_ERROR_CHECK( gpio_config( &( const gpio_config_t ) {
+		.pin_bit_mask = BIT64( GPIO_NUM_12 ) | BIT64( GPIO_NUM_22 ),
+		.mode = GPIO_MODE_OUTPUT } ) );
 	ESP_ERROR_CHECK( !( eth_mutex = xSemaphoreCreateMutex() ) );
 	ESP_ERROR_CHECK( spi_bus_add_device(
 		VSPI_HOST,

@@ -1,12 +1,11 @@
 
 #include "eth-w5100-main.h"
 
-#include "eth-w5100-ll.h"
-#include "eth-w5100.h"
-
 #include "esp_eth.h"
 #include "esp_event.h"
 #include "esp_log.h"
+#include "eth-w5100-ll.h"
+#include "eth-w5100.h"
 
 #include <stdint.h>
 
@@ -78,10 +77,18 @@ static void init( void )
 	eth_ev = xEventGroupCreate();
 
 	// Register user defined event handers
-	ESP_ERROR_CHECK(
-		esp_event_handler_instance_register( ETH_EVENT, ESP_EVENT_ANY_ID, &eth_event_handler, NULL, &evt_hdls.eth_evt_hdl ) );
-	ESP_ERROR_CHECK(
-		esp_event_handler_instance_register( IP_EVENT, IP_EVENT_ETH_GOT_IP, &got_ip_event_handler, NULL, &evt_hdls.got_ip_evt_hdl ) );
+	ESP_ERROR_CHECK( esp_event_handler_instance_register(
+		ETH_EVENT,
+		ESP_EVENT_ANY_ID,
+		&eth_event_handler,
+		NULL,
+		&evt_hdls.eth_evt_hdl ) );
+	ESP_ERROR_CHECK( esp_event_handler_instance_register(
+		IP_EVENT,
+		IP_EVENT_ETH_GOT_IP,
+		&got_ip_event_handler,
+		NULL,
+		&evt_hdls.got_ip_evt_hdl ) );
 }
 
 #ifdef CONFIG_TEST_DEINIT
