@@ -94,16 +94,23 @@ ForEachMacros: ['cJSON_ArrayForEach', 'SLIST_FOREACH', 'LIST_FOREACH', 'STAILQ_F
 IfMacros: ['IF']
 IncludeBlocks:   Regroup
 IncludeCategories:
-  - Regex:           '^<[a-z_]+>'
-    Priority:        5
-  - Regex:           'sdkconfig.h'
-    Priority:        3
-  - Regex:           'ar-[a-z0-9\-]+\.h'
-    Priority:        1
-  - Regex:           '(aio|arpa\/inet|assert|complex|cpio|ctype|devctl|dirent|dlfcn|endian|errno|fcntl|fenv|float|fmtmsg|fnmatch|ftw|glob|grp|iconv|inttypes|iso646|langinfo|libintl|libgen|limits|locale|math|monetary|mqueue|ndbm|net\/if|netdb|netinet\/in|netinet\/tcp|nl_types|poll|pthread|pwd|regex|sched|search|semaphore|setjmp|signal|spawn|stdalign|stdarg|stdatomic|stdbool|stddef|stdint|stdio|stdlib|stdnoreturn|string|strings|sys\/ipc|sys\/mman|sys\/msg|sys\/resource|sys\/select|sys\/sem|sys\/shm|sys\/socket|sys\/stat|sys\/statvfs|sys\/time|sys\/times|sys\/types|sys\/uio|sys\/un|sys\/utsname|sys\/wait|syslog|tar|termios|tgmath|threads|time|uchar|unistd|utmpx|wchar|wctype|wordexp)\.h'
-    Priority:        4
-  - Regex:           '".*"'
-    Priority:        2
+  - Regex: '(complex|ctype|errno|fenv|float|inttypes|iso646|limits|locale|math|setjmp|signal|stdalign|stdarg|stdatomic|stdbit|stdbool|stdckdint|stddef|stdint|stdio|stdlib|stdmchar|stdnoreturn|string|tgmath|threads|time|uchar|wchar|wctype)\.h'
+    Priority: 5
+  - Regex: '(aio|arpa\/inet|assert|cpio|devctl|dirent|dlfcn|endian|fcntl|fmtmsg|fnmatch|ftw|glob|grp|iconv|langinfo|libgen|libintl|monetary|mqueue|ndbm|net\/if|netdb|netinet\/in|netinet\/tcp|nl_types|poll|pthread|pwd|regex|sched|search|semaphore|spawn|strings|sys\/ipc|sys\/mman|sys\/msg|sys\/resource|sys\/select|sys\/sem|sys\/shm|sys\/socket|sys\/stat|sys\/statvfs|sys\/time|sys\/times|sys\/types|sys\/uio|sys\/un|sys\/utsname|sys\/wait|syslog|tar|termios|unistd|utmpx|wordexp)\.h'
+    Priority: 4
+  - Regex: 'sdkconfig.h'
+    Priority: 3
+  - Regex: 'eth-[a-z0-9\-]+\.h'
+    Priority: 1
+  - Regex: 'freertos\/FreeRTOS\.h'
+    Priority: 2
+    SortPriority: 3
+  - Regex: 'freertos\/.*\.h'
+    Priority: 2
+    SortPriority: 4
+  - Regex: '.*'
+    Priority: 2
+    SortPriority: 2
 IncludeIsMainRegex: '$'
 IncludeIsMainSourceRegex: ''
 IndentAccessModifiers: false

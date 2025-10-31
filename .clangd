@@ -1,0 +1,23 @@
+CompileFlags:
+  CompilationDatabase: ./build
+  Remove: [ -fzero-init-padding-bits=all, -fno-tree-switch-conversion, -fno-shrink-wrap, -fno-malloc-dce, -fstrict-volatile-bitfields ]
+
+Diagnostics:
+  UnusedIncludes: Strict
+  MissingIncludes: None
+  ClangTidy:
+    FastCheckFilter: None
+
+Completion:
+  AllScopes: No
+
+InlayHints:
+  BlockEnd: true
+  Designators: true
+  Enabled: true
+  ParameterNames: true
+  DeducedTypes: true
+  TypeNameLimit: 0
+
+Hover:
+  ShowAKA: false

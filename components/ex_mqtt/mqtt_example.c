@@ -7,27 +7,21 @@
    CONDITIONS OF ANY KIND, either express or implied.
 */
 
+#include "mqtt_example.h"
+
+#include "esp_log.h"
+#include "esp_ota_ops.h"
 #include "esp_partition.h"
 #include "esp_system.h"
+#include "mqtt_client.h"
+#include <sys/param.h>
 
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-// #include "nvs_flash.h"
-// #include "esp_event.h"
-// #include "esp_netif.h"
-// #include "protocol_examples_common.h"
 
-#include "esp_log.h"
-#include "esp_ota_ops.h"
-#include "esp_tls.h"
-#include "mqtt_client.h"
-#include "mqtt_example.h"
-
-#include <sys/param.h>
-
-static const char *TAG = "MQTTS_EXAMPLE";
+static const char *TAG = "mqtts_example";
 
 #if CONFIG_BROKER_CERTIFICATE_OVERRIDDEN == 1
 static const uint8_t mqtt_eclipseprojects_io_pem_start[] =
@@ -73,10 +67,10 @@ static void mqtt_event_handler( void *handler_args, esp_event_base_t base, int32
 	{
 		case MQTT_EVENT_CONNECTED:
 			ESP_LOGI( TAG, "MQTT_EVENT_CONNECTED" );
-			msg_id = esp_mqtt_client_subscribe( client, ( char * )"/topic/qos0", 0 );
+			msg_id = esp_mqtt_client_subscribe( client, "/topic/qos0", 0 );
 			ESP_LOGI( TAG, "sent subscribe successful, msg_id=%d", msg_id );
 
-			msg_id = esp_mqtt_client_subscribe( client, ( char * )"/topic/qos1", 1 );
+			msg_id = esp_mqtt_client_subscribe( client, "/topic/qos1", 1 );
 			ESP_LOGI( TAG, "sent subscribe successful, msg_id=%d", msg_id );
 
 			msg_id = esp_mqtt_client_unsubscribe( client, "/topic/qos1" );
@@ -87,7 +81,11 @@ static void mqtt_event_handler( void *handler_args, esp_event_base_t base, int32
 			break;
 
 		case MQTT_EVENT_SUBSCRIBED:
-			ESP_LOGI( TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id );
+			ESP_LOGI(
+				TAG,
+				"MQTT_EVENT_SUBSCRIBED, msg_id=%d, return code=0x%02x ",
+				event->msg_id,
+				( uint8_t )*event->data );
 			msg_id = esp_mqtt_client_publish( client, "/topic/qos0", "data", 0, 0, 0 );
 			ESP_LOGI( TAG, "sent publish successful, msg_id=%d", msg_id );
 			break;

@@ -7,29 +7,22 @@
    CONDITIONS OF ANY KIND, either express or implied.
 */
 
-#include "esp_log.h"
-
-#include <ctype.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <sys/param.h>
-// #include "nvs_flash.h"
-// #include "esp_event.h"
-// #include "esp_netif.h"
-#include "esp_tls.h"
-#include "protocol_examples_common.h"
-#include "protocol_examples_utils.h"
-#if CONFIG_MBEDTLS_CERTIFICATE_BUNDLE
-#include "esp_crt_bundle.h"
-#endif
-
-#include "esp_http_client.h"
 #include "esp_http_client_example.h"
-#include "esp_system.h"
+
+#include "esp_crt_bundle.h"
+#include "esp_http_client.h"
+#include "esp_log.h"
+#include "esp_tls.h"
+#include "protocol_examples_utils.h"
+#include <sys/param.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+#include <stdlib.h>
+#include <string.h>
+
+#if CONFIG_MBEDTLS_CERTIFICATE_BUNDLE
+#endif
 #define MAX_HTTP_RECV_BUFFER   512
 #define MAX_HTTP_OUTPUT_BUFFER 2048
 static const char *TAG = "HTTP_CLIENT";
@@ -46,9 +39,6 @@ static const char *TAG = "HTTP_CLIENT";
 */
 extern const char howsmyssl_com_root_cert_pem_start[] asm( "_binary_howsmyssl_com_root_cert_pem_start" );
 extern const char howsmyssl_com_root_cert_pem_end[] asm( "_binary_howsmyssl_com_root_cert_pem_end" );
-
-extern const char postman_root_cert_pem_start[] asm( "_binary_postman_root_cert_pem_start" );
-extern const char postman_root_cert_pem_end[] asm( "_binary_postman_root_cert_pem_end" );
 
 esp_err_t _http_event_handler( esp_http_client_event_t *evt )
 {
@@ -67,6 +57,9 @@ esp_err_t _http_event_handler( esp_http_client_event_t *evt )
 			break;
 		case HTTP_EVENT_ON_HEADER:
 			ESP_LOGD( TAG, "HTTP_EVENT_ON_HEADER, key=%s, value=%s", evt->header_key, evt->header_value );
+			break;
+		case HTTP_EVENT_ON_HEADERS_COMPLETE:
+			ESP_LOGD( TAG, "HTTP_EVENT_ON_HEADERS_COMPLETE" );
 			break;
 		case HTTP_EVENT_ON_DATA:
 			ESP_LOGD( TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len );
@@ -87,7 +80,7 @@ esp_err_t _http_event_handler( esp_http_client_event_t *evt )
 				if ( evt->user_data )
 				{
 					// The last byte in evt->user_data is kept for the NULL character in case of out-of-bound access.
-					copy_len = MIN( evt->data_len, ( MAX_HTTP_OUTPUT_BUFFER - output_len ) );
+					copy_len = MIN( evt->data_len, MAX_HTTP_OUTPUT_BUFFER - output_len );
 					if ( copy_len )
 						memcpy( evt->user_data + output_len, evt->data, copy_len );
 				}
@@ -106,7 +99,7 @@ esp_err_t _http_event_handler( esp_http_client_event_t *evt )
 							return ESP_FAIL;
 						}
 					}
-					copy_len = MIN( evt->data_len, ( content_len - output_len ) );
+					copy_len = MIN( evt->data_len, content_len - output_len );
 					if ( copy_len )
 						memcpy( output_buffer + output_len, evt->data, copy_len );
 				}
@@ -118,8 +111,9 @@ esp_err_t _http_event_handler( esp_http_client_event_t *evt )
 			ESP_LOGD( TAG, "HTTP_EVENT_ON_FINISH" );
 			if ( output_buffer != NULL )
 			{
-				// Response is accumulated in output_buffer. Uncomment the below line to print the accumulated response
-				// ESP_LOG_BUFFER_HEX(TAG, output_buffer, output_len);
+#if CONFIG_EXAMPLE_ENABLE_RESPONSE_BUFFER_DUMP
+				ESP_LOG_BUFFER_HEX( TAG, output_buffer, output_len );
+#endif
 				free( output_buffer );
 				output_buffer = NULL;
 			}
@@ -147,6 +141,8 @@ esp_err_t _http_event_handler( esp_http_client_event_t *evt )
 			esp_http_client_set_header( evt->client, "Accept", "text/html" );
 			esp_http_client_set_redirection( evt->client );
 			break;
+		default:
+			break;
 	}
 	return ESP_OK;
 }
@@ -157,7 +153,7 @@ static void http_rest_with_url( void )
 	// it is used by functions like strlen(). The buffer should only be used upto size MAX_HTTP_OUTPUT_BUFFER
 	char local_response_buffer[ MAX_HTTP_OUTPUT_BUFFER + 1 ] = { 0 };
 	/**
-	 * NOTE: All the configuration parameters for http_client must be spefied either in URL or as host and path
+	 * NOTE: All the configuration parameters for http_client must be specified either in URL or as host and path
 	 * parameters. If host and path parameters are not set, query parameter will be ignored. In such cases, query
 	 * parameter should be specified in URL.
 	 *
@@ -171,6 +167,7 @@ static void http_rest_with_url( void )
 		.user_data = local_response_buffer,	 // Pass address of local buffer to get response
 		.disable_auto_redirect = true,
 	};
+	ESP_LOGI( TAG, "HTTP request with url =>" );
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 
 	// GET
@@ -289,6 +286,7 @@ static void http_rest_with_hostname_path( void )
 		.transport_type = HTTP_TRANSPORT_OVER_TCP,
 		.event_handler = _http_event_handler,
 	};
+	ESP_LOGI( TAG, "HTTP request with hostname and path =>" );
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 
 	// GET
@@ -413,6 +411,7 @@ static void http_auth_basic( void )
 		.auth_type = HTTP_AUTH_TYPE_BASIC,
 		.max_authorization_retries = -1,
 	};
+	ESP_LOGI( TAG, "HTTP Basic Auth request =>" );
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 	esp_err_t err = esp_http_client_perform( client );
 
@@ -437,6 +436,7 @@ static void http_auth_basic_redirect( void )
 		.url = "http://user:passwd@" CONFIG_EXAMPLE_HTTP_ENDPOINT "/basic-auth/user/passwd",
 		.event_handler = _http_event_handler,
 	};
+	ESP_LOGI( TAG, "HTTP Basic Auth redirect request =>" );
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 	esp_err_t err = esp_http_client_perform( client );
 
@@ -457,12 +457,13 @@ static void http_auth_basic_redirect( void )
 #endif
 
 #if CONFIG_ESP_HTTP_CLIENT_ENABLE_DIGEST_AUTH
-static void http_auth_digest( void )
+static void http_auth_digest_md5( void )
 {
 	esp_http_client_config_t config = {
 		.url = "http://user:passwd@" CONFIG_EXAMPLE_HTTP_ENDPOINT "/digest-auth/auth/user/passwd/MD5/never",
 		.event_handler = _http_event_handler,
 	};
+	ESP_LOGI( TAG, "HTTP MD5 Digest Auth request =>" );
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 	esp_err_t err = esp_http_client_perform( client );
 
@@ -470,13 +471,39 @@ static void http_auth_digest( void )
 	{
 		ESP_LOGI(
 			TAG,
-			"HTTP Digest Auth Status = %d, content_length = %" PRId64,
+			"HTTP MD5 Digest Auth Status = %d, content_length = %" PRId64,
 			esp_http_client_get_status_code( client ),
 			esp_http_client_get_content_length( client ) );
 	}
 	else
 	{
-		ESP_LOGE( TAG, "Error perform http request %s", esp_err_to_name( err ) );
+		ESP_LOGE( TAG, "Error performing http request %s", esp_err_to_name( err ) );
+	}
+	esp_http_client_cleanup( client );
+}
+
+static void http_auth_digest_sha256( void )
+{
+	esp_http_client_config_t config = {
+		.url = "http://user:passwd@" CONFIG_EXAMPLE_HTTP_ENDPOINT "/digest-auth/auth/user/passwd/SHA-256/never",
+		.event_handler = _http_event_handler,
+		.buffer_size_tx = 1024,	 // Increase buffer size as header size will increase as it contains SHA-256.
+	};
+	ESP_LOGI( TAG, "HTTP SHA256 Digest Auth request =>" );
+	esp_http_client_handle_t client = esp_http_client_init( &config );
+	esp_err_t err = esp_http_client_perform( client );
+
+	if ( err == ESP_OK )
+	{
+		ESP_LOGI(
+			TAG,
+			"HTTP SHA256 Digest Auth Status = %d, content_length = %" PRId64,
+			esp_http_client_get_status_code( client ),
+			esp_http_client_get_content_length( client ) );
+	}
+	else
+	{
+		ESP_LOGE( TAG, "Error performing http request %s", esp_err_to_name( err ) );
 	}
 	esp_http_client_cleanup( client );
 }
@@ -490,6 +517,7 @@ static void https_with_url( void )
 		.event_handler = _http_event_handler,
 		.crt_bundle_attach = esp_crt_bundle_attach,
 	};
+	ESP_LOGI( TAG, "HTTPS request with url =>" );
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 	esp_err_t err = esp_http_client_perform( client );
 
@@ -518,6 +546,7 @@ static void https_with_hostname_path( void )
 		.event_handler = _http_event_handler,
 		.cert_pem = howsmyssl_com_root_cert_pem_start,
 	};
+	ESP_LOGI( TAG, "HTTPS request with hostname and path =>" );
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 	esp_err_t err = esp_http_client_perform( client );
 
@@ -543,6 +572,7 @@ static void http_encoded_query( void )
 		.path = "/get",
 		.event_handler = _http_event_handler,
 	};
+	ESP_LOGI( TAG, "HTTP GET request with encoded query =>" );
 
 	static const char query_val[] = "ABC xyz!012@#%&";
 	char query_val_enc[ 64 ] = { 0 };
@@ -576,6 +606,7 @@ static void http_relative_redirect( void )
 		.url = "http://" CONFIG_EXAMPLE_HTTP_ENDPOINT "/relative-redirect/3",
 		.event_handler = _http_event_handler,
 	};
+	ESP_LOGI( TAG, "HTTP Relative path redirect request =>" );
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 	esp_err_t err = esp_http_client_perform( client );
 
@@ -600,6 +631,7 @@ static void http_absolute_redirect( void )
 		.url = "http://" CONFIG_EXAMPLE_HTTP_ENDPOINT "/absolute-redirect/3",
 		.event_handler = _http_event_handler,
 	};
+	ESP_LOGI( TAG, "HTTP Absolute path redirect request =>" );
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 	esp_err_t err = esp_http_client_perform( client );
 
@@ -625,6 +657,7 @@ static void http_absolute_redirect_manual( void )
 		.event_handler = _http_event_handler,
 		.disable_auto_redirect = true,
 	};
+	ESP_LOGI( TAG, "HTTP Absolute path redirect (manual) request =>" );
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 	esp_err_t err = esp_http_client_perform( client );
 
@@ -650,6 +683,7 @@ static void http_redirect_to_https( void )
 		.event_handler = _http_event_handler,
 		.cert_pem = howsmyssl_com_root_cert_pem_start,
 	};
+	ESP_LOGI( TAG, "HTTP redirect to HTTPS request =>" );
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 	esp_err_t err = esp_http_client_perform( client );
 
@@ -674,6 +708,7 @@ static void http_download_chunk( void )
 		.url = "http://" CONFIG_EXAMPLE_HTTP_ENDPOINT "/stream-bytes/8912",
 		.event_handler = _http_event_handler,
 	};
+	ESP_LOGI( TAG, "HTTP chunk encoding request =>" );
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 	esp_err_t err = esp_http_client_perform( client );
 
@@ -703,6 +738,7 @@ static void http_perform_as_stream_reader( void )
 	esp_http_client_config_t config = {
 		.url = "http://" CONFIG_EXAMPLE_HTTP_ENDPOINT "/get",
 	};
+	ESP_LOGI( TAG, "HTTP Stream reader request =>" );
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 	esp_err_t err;
 	if ( ( err = esp_http_client_open( client, 0 ) ) != ESP_OK )
@@ -731,22 +767,23 @@ static void http_perform_as_stream_reader( void )
 	free( buffer );
 }
 
+#if CONFIG_MBEDTLS_CERTIFICATE_BUNDLE
 static void https_async( void )
 {
 	esp_http_client_config_t config = {
 		.url = "https://postman-echo.com/post",
 		.event_handler = _http_event_handler,
-		.cert_pem = postman_root_cert_pem_start,
+		.crt_bundle_attach = esp_crt_bundle_attach,
 		.is_async = true,
 		.timeout_ms = 5000,
 	};
+	ESP_LOGI( TAG, "HTTPS async requests =>" );
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 	esp_err_t err;
-	const char *post_data =
-		"Using a Palantír requires a person with great strength of will and wisdom. The Palantíri were meant to "
-		"be used by the Dúnedain to communicate throughout the Realms in Exile. During the War of the Ring, "
-		"the Palantíri were used by many individuals. Sauron used the Ithil-stone to take advantage of the users "
-		"of the other two stones, the Orthanc-stone and Anor-stone, but was also susceptible to deception himself.";
+	const char *post_data = "Using a Palantír requires a person with great strength of will and wisdom. The Palantíri were meant to "
+                            "be used by the Dúnedain to communicate throughout the Realms in Exile. During the War of the Ring, "
+                            "the Palantíri were used by many individuals. Sauron used the Ithil-stone to take advantage of the users "
+                            "of the other two stones, the Orthanc-stone and Anor-stone, but was also susceptible to deception himself.";
 	esp_http_client_set_method( client, HTTP_METHOD_POST );
 	esp_http_client_set_post_field( client, post_data, strlen( post_data ) );
 	while ( 1 )
@@ -799,6 +836,7 @@ static void https_async( void )
 	}
 	esp_http_client_cleanup( client );
 }
+#endif
 
 static void https_with_invalid_url( void )
 {
@@ -806,6 +844,7 @@ static void https_with_invalid_url( void )
 		.url = "https://not.existent.url",
 		.event_handler = _http_event_handler,
 	};
+	ESP_LOGI( TAG, "HTTPS request with invalid url =>" );
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 	esp_err_t err = esp_http_client_perform( client );
 
@@ -839,6 +878,7 @@ static void http_native_request( void )
 	esp_http_client_config_t config = {
 		.url = "http://" CONFIG_EXAMPLE_HTTP_ENDPOINT "/get",
 	};
+	ESP_LOGI( TAG, "HTTP native request =>" );
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 
 	// GET Request
@@ -924,6 +964,7 @@ static void http_partial_download( void )
 		.event_handler = _http_event_handler,
 		.crt_bundle_attach = esp_crt_bundle_attach,
 	};
+	ESP_LOGI( TAG, "HTTP partial download =>" );
 	esp_http_client_handle_t client = esp_http_client_init( &config );
 
 	// Download a file excluding first 10 bytes
@@ -987,7 +1028,8 @@ static void http_test_task( void *pvParameters )
 	http_auth_basic_redirect();
 #endif
 #if CONFIG_ESP_HTTP_CLIENT_ENABLE_DIGEST_AUTH
-	http_auth_digest();
+	http_auth_digest_md5();
+	http_auth_digest_sha256();
 #endif
 	http_encoded_query();
 	http_relative_redirect();
@@ -1000,7 +1042,9 @@ static void http_test_task( void *pvParameters )
 	http_redirect_to_https();
 	http_download_chunk();
 	http_perform_as_stream_reader();
+#if CONFIG_MBEDTLS_CERTIFICATE_BUNDLE
 	https_async();
+#endif
 	https_with_invalid_url();
 	http_native_request();
 #if CONFIG_MBEDTLS_CERTIFICATE_BUNDLE

@@ -1,11 +1,12 @@
 
 #include "eth-w5100-main.h"
 
+#include "eth-w5100-ll.h"
+#include "eth-w5100.h"
+
 #include "esp_eth.h"
 #include "esp_event.h"
 #include "esp_log.h"
-#include "eth-w5100-ll.h"
-#include "eth-w5100.h"
 
 #include <stdint.h>
 
